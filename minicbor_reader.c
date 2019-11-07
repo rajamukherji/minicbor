@@ -1,6 +1,8 @@
 #include "minicbor.h"
-
+#include <stdlib.h>
 #include <math.h>
+
+#define new(T) (T*)malloc(sizeof(T))
 
 typedef enum {
 	MCS_DEFAULT,
@@ -47,6 +49,14 @@ struct minicbor_reader_t {
 	int Position, Width, Required;
 	minicbor_state_t State;
 };
+
+minicbor_reader_t *minicbor_reader_new(void *UserData) {
+	minicbor_reader_t *Reader = new(minicbor_reader_t);
+	Reader->UserData = UserData;
+	Reader->Position = 0;
+	Reader->State = MCS_DEFAULT;
+	return Reader;
+}
 
 void minicbor_set_userdata(minicbor_reader_t *Reader, void *UserData) {
 	Reader->UserData = UserData;

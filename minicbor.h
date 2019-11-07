@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 typedef struct minicbor_writer_t minicbor_writer_t;
-typedef int (*minicbor_write_fn)(void *State, const void *Data, unsigned Size);
+typedef int (*minicbor_write_fn)(void *State, const void *UserData, unsigned Size);
 
 minicbor_writer_t *minicbor_writer_new(void *State, minicbor_write_fn WriteFn);
 
@@ -37,7 +37,7 @@ void minicbor_write_tag(minicbor_writer_t *Writer, uint64_t Tag);
 
 typedef struct minicbor_reader_t minicbor_reader_t;
 
-minicbor_reader_t *minicbor_reader_new();
+minicbor_reader_t *minicbor_reader_new(void *UserData);
 void minicbor_set_userdata(minicbor_reader_t *Reader, void *UserData);
 void minicbor_set_positive_fn(minicbor_reader_t *Reader, void (*PositiveFn)(void *UserData, uint64_t Number));
 void minicbor_set_negative_fn(minicbor_reader_t *Reader, void (*NegativeFn)(void *UserData, uint64_t Number));

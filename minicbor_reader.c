@@ -1,133 +1,9 @@
 #include "minicbor.h"
-#include <stdlib.h>
 #include <math.h>
 
-#define new(T) (T*)malloc(sizeof(T))
-
-typedef enum {
-	MCS_DEFAULT,
-	MCS_POSITIVE,
-	MCS_NEGATIVE,
-	MCS_BYTES_SIZE,
-	MCS_BYTES_CHUNK_SIZE,
-	MCS_STRING_SIZE,
-	MCS_STRING_CHUNK_SIZE,
-	MCS_ARRAY_SIZE,
-	MCS_MAP_SIZE,
-	MCS_TAG,
-	MCS_BYTES,
-	MCS_BYTES_INDEF,
-	MCS_BYTES_CHUNK,
-	MCS_STRING,
-	MCS_STRING_INDEF,
-	MCS_STRING_CHUNK,
-	MCS_SIMPLE,
-	MCS_FLOAT,
-	MCS_INVALID
-} minicbor_state_t;
-
-struct minicbor_reader_t {
-	unsigned char Buffer[8];
-	void (*PositiveFn)(void *UserData, uint64_t Number);
-	void (*NegativeFn)(void *UserData, uint64_t Number);
-	void (*BytesFn)(void *UserData, int Size);
-	void (*BytesChunkFn)(void *UserData, void *Bytes, int Size, int Final);
-	void (*StringFn)(void *UserData, int Size);
-	void (*StringChunkFn)(void *UserData, void *Bytes, int Size, int Final);
-	void (*ArrayFn)(void *UserData, int Size);
-	void (*MapFn)(void *UserData, int Size);
-	void (*TagFn)(void *UserData, uint64_t Tag);
-	void (*FalseFn)(void *UserData);
-	void (*TrueFn)(void *UserData);
-	void (*NullFn)(void *UserData);
-	void (*UndefinedFn)(void *UserData);
-	void (*SimpleFn)(void *UserData, int Value);
-	void (*FloatFn)(void *UserData, double Number);
-	void (*BreakFn)(void *UserData);
-	void (*ErrorFn)(void *UserData, int Position, const char *Message);
-	void *UserData;
-	int Position, Width, Required;
-	minicbor_state_t State;
-};
-
-minicbor_reader_t *minicbor_reader_new(void *UserData) {
-	minicbor_reader_t *Reader = new(minicbor_reader_t);
-	Reader->UserData = UserData;
+void minicbor_reader_init(minicbor_reader_t *Reader) {
 	Reader->Position = 0;
 	Reader->State = MCS_DEFAULT;
-	return Reader;
-}
-
-void minicbor_set_userdata(minicbor_reader_t *Reader, void *UserData) {
-	Reader->UserData = UserData;
-}
-
-void minicbor_set_positive_fn(minicbor_reader_t *Reader, void (*PositiveFn)(void *UserData, uint64_t Number)) {
-	Reader->PositiveFn = PositiveFn;
-}
-
-void minicbor_set_negative_fn(minicbor_reader_t *Reader, void (*NegativeFn)(void *UserData, uint64_t Number)) {
-	Reader->NegativeFn = NegativeFn;
-}
-
-void minicbor_set_bytes_fn(minicbor_reader_t *Reader, void (*BytesFn)(void *UserData, int Size)) {
-	Reader->BytesFn = BytesFn;
-}
-
-void minicbor_set_bytes_chunk_fn(minicbor_reader_t *Reader, void (*BytesChunkFn)(void *UserData, void *Bytes, int Size, int Final)) {
-	Reader->BytesChunkFn = BytesChunkFn;
-}
-
-void minicbor_set_string_fn(minicbor_reader_t *Reader, void (*StringFn)(void *UserData, int Size)) {
-	Reader->StringFn = StringFn;
-}
-
-void minicbor_set_string_chunk_fn(minicbor_reader_t *Reader, void (*StringChunkFn)(void *UserData, void *Bytes, int Size, int Final)) {
-	Reader->StringChunkFn = StringChunkFn;
-}
-
-void minicbor_set_array_fn(minicbor_reader_t *Reader, void (*ArrayFn)(void *UserData, int Size)) {
-	Reader->ArrayFn = ArrayFn;
-}
-
-void minicbor_set_map_fn(minicbor_reader_t *Reader, void (*MapFn)(void *UserData, int Size)) {
-	Reader->MapFn = MapFn;
-}
-
-void minicbor_set_tag_fn(minicbor_reader_t *Reader, void (*TagFn)(void *UserData, uint64_t Tag)) {
-	Reader->TagFn = TagFn;
-}
-
-void minicbor_set_false_fn(minicbor_reader_t *Reader, void (*FalseFn)(void *UserData)) {
-	Reader->FalseFn = FalseFn;
-}
-
-void minicbor_set_true_fn(minicbor_reader_t *Reader, void (*TrueFn)(void *UserData)) {
-	Reader->TrueFn = TrueFn;
-}
-
-void minicbor_set_null_fn(minicbor_reader_t *Reader, void (*NullFn)(void *UserData)) {
-	Reader->NullFn = NullFn;
-}
-
-void minicbor_set_undefined_fn(minicbor_reader_t *Reader, void (*UndefinedFn)(void *UserData)) {
-	Reader->UndefinedFn = UndefinedFn;
-}
-
-void minicbor_set_simple_fn(minicbor_reader_t *Reader, void (*SimpleFn)(void *UserData, int Value)) {
-	Reader->SimpleFn = SimpleFn;
-}
-
-void minicbor_set_float_fn(minicbor_reader_t *Reader, void (*FloatFn)(void *UserData, double Number)) {
-	Reader->FloatFn = FloatFn;
-}
-
-void minicbor_set_break_fn(minicbor_reader_t *Reader, void (*BreakFn)(void *UserData)) {
-	Reader->BreakFn = BreakFn;
-}
-
-void minicbor_set_error_fn(minicbor_reader_t *Reader, void (*ErrorFn)(void *UserData, int Position, const char *Message)) {
-	Reader->ErrorFn = ErrorFn;
 }
 
 void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Available) {
@@ -205,17 +81,8 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			Reader->Required = 1 << (Byte - 0xD8);
 			State = MCS_TAG;
 			break;
-		case 0xF4:
-			Reader->FalseFn(Reader->UserData);
-			break;
-		case 0xF5:
-			Reader->TrueFn(Reader->UserData);
-			break;
-		case 0xF6:
-			Reader->NullFn(Reader->UserData);
-			break;
-		case 0xF7:
-			Reader->UndefinedFn(Reader->UserData);
+		case 0xE0 ... 0xF7:
+			Reader->SimpleFn(Reader->UserData, Byte - 0xE0);
 			break;
 		case 0xF8:
 			State = MCS_SIMPLE;

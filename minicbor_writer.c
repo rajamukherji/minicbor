@@ -3,18 +3,8 @@
 
 #define new(T) (T*)malloc(sizeof(T))
 
-struct minicbor_writer_t {
-	void *UserData;
-	minicbor_write_fn WriteFn;
-	unsigned long Total;
-};
-
-minicbor_writer_t *minicbor_writer_new(void *UserData, minicbor_write_fn WriteFn) {
-	minicbor_writer_t *Writer = new(minicbor_writer_t);
-	Writer->UserData = UserData;
-	Writer->WriteFn = WriteFn;
+void minicbor_writer_init(minicbor_writer_t *Writer) {
 	Writer->Total = 0;
-	return Writer;
 }
 
 static inline void minicbor_write(minicbor_writer_t *Writer, const void *Bytes, unsigned Size) {
@@ -46,7 +36,7 @@ static void minicbor_write_number(minicbor_writer_t *Writer, uint64_t Absolute, 
 	}
 }
 
-void minicbor_write_int(minicbor_writer_t *Writer, int64_t Number) {
+void minicbor_write_integer(minicbor_writer_t *Writer, int64_t Number) {
 	if (Number < 0) {
 		minicbor_write_number(Writer, ~Number, 0x20);
 	} else {
@@ -54,22 +44,24 @@ void minicbor_write_int(minicbor_writer_t *Writer, int64_t Number) {
 	}
 }
 
-void minicbor_write_uint(minicbor_writer_t *Writer, uint64_t Number) {
+void minicbor_write_positive(minicbor_writer_t *Writer, uint64_t Number) {
 	minicbor_write_number(Writer, Number, 0x0);
 }
 
-void minicbor_write_bytes(minicbor_writer_t *Writer, const void *String, unsigned Size) {
+void minicbor_write_negative(minicbor_writer_t *Writer, uint64_t Number) {
+	minicbor_write_number(Writer, Number, 0x20);
+}
+
+void minicbor_write_bytes(minicbor_writer_t *Writer, unsigned Size) {
 	minicbor_write_number(Writer, Size, 0x40);
-	minicbor_write(Writer, String, Size);
 }
 
 void minicbor_write_bytes_open(minicbor_writer_t *Writer) {
 	minicbor_write(Writer, (unsigned char[]){0x5F}, 1);
 }
 
-void minicbor_write_string(minicbor_writer_t *Writer, const char *String, unsigned Size) {
+void minicbor_write_string(minicbor_writer_t *Writer, unsigned Size) {
 	minicbor_write_number(Writer, Size, 0x60);
-	minicbor_write(Writer, String, Size);
 }
 
 void minicbor_write_indef_string(minicbor_writer_t *Writer) {
@@ -100,20 +92,12 @@ void minicbor_write_float(minicbor_writer_t *Writer, double Number) {
 	minicbor_write(Writer, Bytes, 9);
 }
 
-void minicbor_write_false(minicbor_writer_t *Writer) {
-	minicbor_write(Writer, (unsigned char[]){0xF4}, 1);
-}
-
-void minicbor_write_true(minicbor_writer_t *Writer) {
-	minicbor_write(Writer, (unsigned char[]){0xF5}, 1);
-}
-
-void minicbor_write_null(minicbor_writer_t *Writer) {
-	minicbor_write(Writer, (unsigned char[]){0xF6}, 1);
-}
-
-void minicbor_write_undef(minicbor_writer_t *Writer) {
-	minicbor_write(Writer, (unsigned char[]){0xF7}, 1);
+void minicbor_write_simple(minicbor_writer_t *Writer, unsigned char Simple) {
+	if (Simple < 24) {
+		minicbor_write(Writer, (unsigned char[]){Simple + 0xE0}, 1);
+	} else {
+		minicbor_write(Writer, (unsigned char[]){0xF8, Simple}, 2);
+	}
 }
 
 void minicbor_write_break(minicbor_writer_t *Writer) {

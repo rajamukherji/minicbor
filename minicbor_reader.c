@@ -7,7 +7,7 @@ void minicbor_reader_init(minicbor_reader_t *Reader) {
 }
 
 static inline uint64_t minicbor_read8(unsigned char *Bytes) {
-	return Bytes[0];
+	return *(uint8_t *)Bytes;
 }
 
 static inline uint64_t minicbor_read16(unsigned char *Bytes) {
@@ -316,7 +316,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			Available = 0;
 		} else {
 			Reader->BytesChunkFn(Reader->UserData, Bytes, Required, 1);
-			Reader->State = MCS_DEFAULT;
+			State = MCS_DEFAULT;
 			Available -= Required;
 			Bytes += Required;
 		}
@@ -353,7 +353,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			Available = 0;
 		} else {
 			Reader->BytesChunkFn(Reader->UserData, Bytes, Required, 0);
-			Reader->State = MCS_BYTES_INDEF;
+			State = MCS_BYTES_INDEF;
 			Available -= Required;
 			Bytes += Required;
 		}
@@ -367,7 +367,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			Available = 0;
 		} else {
 			Reader->StringChunkFn(Reader->UserData, Bytes, Required, 1);
-			Reader->State = MCS_DEFAULT;
+			State = MCS_DEFAULT;
 			Available -= Required;
 			Bytes += Required;
 		}
@@ -404,7 +404,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			Available = 0;
 		} else {
 			Reader->StringChunkFn(Reader->UserData, Bytes, Required, 0);
-			Reader->State = MCS_STRING_INDEF;
+			State = MCS_STRING_INDEF;
 			Available -= Required;
 			Bytes += Required;
 		}

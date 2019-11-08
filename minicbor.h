@@ -27,7 +27,9 @@ void minicbor_write_indef_array(void *UserData, minicbor_write_fn WriteFn);
 void minicbor_write_map(void *UserData, minicbor_write_fn WriteFn, unsigned Size);
 void minicbor_write_indef_map(void *UserData, minicbor_write_fn WriteFn);
 
-void minicbor_write_float(void *UserData, minicbor_write_fn WriteFn, double Number);
+void minicbor_write_float2(void *UserData, minicbor_write_fn WriteFn, double Number);
+void minicbor_write_float4(void *UserData, minicbor_write_fn WriteFn, double Number);
+void minicbor_write_float8(void *UserData, minicbor_write_fn WriteFn, double Number);
 
 void minicbor_write_simple(void *UserData, minicbor_write_fn WriteFn, unsigned char Simple);
 

@@ -429,7 +429,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			double Number = 0;
 			switch (Reader->Width) {
 			case 2: {
-				int Half = *(uint16_t *)Reader->Buffer;
+				int Half = (Reader->Buffer[0] << 8) + Reader->Buffer[1];
 				int Exp = (Half >> 10) & 0x1F;
 				int Mant = Half & 0x3FF;
 				if (Exp == 0) {

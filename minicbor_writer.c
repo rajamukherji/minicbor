@@ -1,7 +1,5 @@
 #include "minicbor.h"
-#include <stdlib.h>
-
-#define new(T) (T*)malloc(sizeof(T))
+#include <math.h>
 
 static inline void minicbor_write(void *UserData, minicbor_write_fn WriteFn, const void *Bytes, unsigned Size) {
 	WriteFn(UserData, Bytes, Size);
@@ -79,20 +77,33 @@ void minicbor_write_indef_map(void *UserData, minicbor_write_fn WriteFn) {
 	WriteFn(UserData, (unsigned char[]){0xBF}, 1);
 }
 
-void minicbor_write_float(void *UserData, minicbor_write_fn WriteFn, double Number) {
-	char Bytes[9];
-	// TODO: Add support for other float sizes
-	Bytes[0] = 0xFB;
-	*(double *)(Bytes + 1) = Number;
-	WriteFn(UserData, Bytes, 9);
-}
-
 void minicbor_write_simple(void *UserData, minicbor_write_fn WriteFn, unsigned char Simple) {
 	if (Simple < 24) {
 		WriteFn(UserData, (unsigned char[]){Simple + 0xE0}, 1);
 	} else {
 		WriteFn(UserData, (unsigned char[]){0xF8, Simple}, 2);
 	}
+}
+
+void minicbor_write_float2(void *UserData, minicbor_write_fn WriteFn, double Number) {
+	char Bytes[3];
+	Bytes[0] = 0xF9;
+	// TODO: Implement this!
+	WriteFn(UserData, Bytes, 3);
+}
+
+void minicbor_write_float4(void *UserData, minicbor_write_fn WriteFn, double Number) {
+	char Bytes[5];
+	Bytes[0] = 0xFA;
+	*(float *)(Bytes + 1) = Number;
+	WriteFn(UserData, Bytes, 5);
+}
+
+void minicbor_write_float8(void *UserData, minicbor_write_fn WriteFn, double Number) {
+	char Bytes[9];
+	Bytes[0] = 0xFB;
+	*(double *)(Bytes + 1) = Number;
+	WriteFn(UserData, Bytes, 9);
 }
 
 void minicbor_write_break(void *UserData, minicbor_write_fn WriteFn) {

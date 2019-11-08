@@ -10,8 +10,6 @@
 
 typedef int (*minicbor_write_fn)(void *State, const void *UserData, unsigned Size);
 
-void minicbor_writer_init(void *UserData, minicbor_write_fn WriteFn);
-
 void minicbor_write_integer(void *UserData, minicbor_write_fn WriteFn, int64_t Number);
 
 void minicbor_write_positive(void *UserData, minicbor_write_fn WriteFn, uint64_t Number);

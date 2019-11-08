@@ -51,7 +51,7 @@ void minicbor_write_bytes(void *UserData, minicbor_write_fn WriteFn, unsigned Si
 	minicbor_write_number(UserData, WriteFn, Size, 0x40);
 }
 
-void minicbor_write_bytes_open(void *UserData, minicbor_write_fn WriteFn) {
+void minicbor_write_indef_bytes(void *UserData, minicbor_write_fn WriteFn) {
 	WriteFn(UserData, (unsigned char[]){0x5F}, 1);
 }
 

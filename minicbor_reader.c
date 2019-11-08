@@ -59,14 +59,14 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			Reader->PositiveFn(Reader->UserData, Byte - 0x00);
 			break;
 		case 0x18 ... 0x1B:
-			Reader->Required = 1 << (Byte - 0x18);
+			Reader->Width = Reader->Required = 1 << (Byte - 0x18);
 			State = MCS_POSITIVE;
 			break;
 		case 0x20 ... 0x37:
 			Reader->NegativeFn(Reader->UserData, Byte - 0x20);
 			break;
 		case 0x38 ... 0x3B:
-			Reader->Required = 1 << (Byte - 0x38);
+			Reader->Width = Reader->Required = 1 << (Byte - 0x38);
 			State = MCS_NEGATIVE;
 			break;
 		case 0x40 ... 0x57:
@@ -75,7 +75,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			State = MCS_BYTES;
 			break;
 		case 0x58 ... 0x5B:
-			Reader->Required = 1 << (Byte - 0x58);
+			Reader->Width = Reader->Required = 1 << (Byte - 0x58);
 			State = MCS_BYTES_SIZE;
 			break;
 		case 0x5F:
@@ -88,7 +88,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			State = MCS_STRING;
 			break;
 		case 0x78 ... 0x7B:
-			Reader->Required = 1 << (Byte - 0x78);
+			Reader->Width = Reader->Required = 1 << (Byte - 0x78);
 			State = MCS_STRING_SIZE;
 			break;
 		case 0x7F:
@@ -99,7 +99,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			Reader->ArrayFn(Reader->UserData, Byte - 0x80);
 			break;
 		case 0x98 ... 0x9B:
-			Reader->Required = 1 << (Byte - 0x98);
+			Reader->Width = Reader->Required = 1 << (Byte - 0x98);
 			State = MCS_ARRAY_SIZE;
 			break;
 		case 0x9F:
@@ -109,7 +109,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			Reader->MapFn(Reader->UserData, Byte - 0xA0);
 			break;
 		case 0xB8 ... 0xBB:
-			Reader->Required = 1 << (Byte - 0xB8);
+			Reader->Width = Reader->Required = 1 << (Byte - 0xB8);
 			State = MCS_MAP_SIZE;
 			break;
 		case 0xBF:
@@ -119,7 +119,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			Reader->TagFn(Reader->UserData, Byte - 0xC0);
 			break;
 		case 0xD8 ... 0xDB:
-			Reader->Required = 1 << (Byte - 0xD8);
+			Reader->Width = Reader->Required = 1 << (Byte - 0xD8);
 			State = MCS_TAG;
 			break;
 		case 0xE0 ... 0xF7:
@@ -129,7 +129,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			State = MCS_SIMPLE;
 			break;
 		case 0xF9 ... 0xFB:
-			Reader->Required = 1 << (Byte - 0xF8);
+			Reader->Width = Reader->Required = 1 << (Byte - 0xF8);
 			State = MCS_FLOAT;
 			break;
 		case 0xFF:

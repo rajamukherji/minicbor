@@ -335,7 +335,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			State = MCS_BYTES_CHUNK_SIZE;
 			break;
 		case 0xFF:
-			Reader->StringChunkFn(Reader->UserData, Bytes, 0, 1);
+			Reader->BytesChunkFn(Reader->UserData, Bytes, 0, 1);
 			State = MCS_DEFAULT;
 			break;
 		default:

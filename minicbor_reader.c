@@ -323,8 +323,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 		break;
 	}
 	case MCS_BYTES_INDEF: {
-		unsigned char Byte = Bytes[0];
-		++Bytes;
+		unsigned char Byte = *Bytes++;
 		--Available;
 		switch (Byte) {
 		case 0x40 ... 0x57:
@@ -375,8 +374,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 		break;
 	}
 	case MCS_STRING_INDEF: {
-		unsigned char Byte = Bytes[0];
-		++Bytes;
+		unsigned char Byte = *Bytes++;
 		--Available;
 		switch (Byte) {
 		case 0x60 ... 0x77:

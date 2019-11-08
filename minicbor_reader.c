@@ -355,6 +355,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			Reader->BytesChunkFn(Reader->UserData, Bytes, Required, 0);
 			Reader->State = MCS_BYTES_INDEF;
 			Available -= Required;
+			Bytes += Required;
 		}
 		break;
 	}
@@ -405,6 +406,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			Reader->StringChunkFn(Reader->UserData, Bytes, Required, 0);
 			Reader->State = MCS_STRING_INDEF;
 			Available -= Required;
+			Bytes += Required;
 		}
 		break;
 	}

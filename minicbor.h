@@ -8,41 +8,34 @@
 #define CBOR_SIMPLE_NULL 22
 #define CBOR_SIMPLE_UNDEF 23
 
-typedef struct minicbor_writer_t minicbor_writer_t;
 typedef int (*minicbor_write_fn)(void *State, const void *UserData, unsigned Size);
 
-struct minicbor_writer_t {
-	void *UserData;
-	minicbor_write_fn WriteFn;
-	unsigned long Total;
-};
+void minicbor_writer_init(void *UserData, minicbor_write_fn WriteFn);
 
-void minicbor_writer_init(minicbor_writer_t *Writer);
+void minicbor_write_integer(void *UserData, minicbor_write_fn WriteFn, int64_t Number);
 
-void minicbor_write_integer(minicbor_writer_t *Writer, int64_t Number);
+void minicbor_write_positive(void *UserData, minicbor_write_fn WriteFn, uint64_t Number);
+void minicbor_write_negative(void *UserData, minicbor_write_fn WriteFn, uint64_t Number);
 
-void minicbor_write_positive(minicbor_writer_t *Writer, uint64_t Number);
-void minicbor_write_negative(minicbor_writer_t *Writer, uint64_t Number);
+void minicbor_write_bytes(void *UserData, minicbor_write_fn WriteFn, unsigned Size);
+void minicbor_write_indef_bytes(void *UserData, minicbor_write_fn WriteFn);
 
-void minicbor_write_bytes(minicbor_writer_t *Writer, unsigned Size);
-void minicbor_write_indef_bytes(minicbor_writer_t *Writer);
+void minicbor_write_string(void *UserData, minicbor_write_fn WriteFn, unsigned Size);
+void minicbor_write_indef_string(void *UserData, minicbor_write_fn WriteFn);
 
-void minicbor_write_string(minicbor_writer_t *Writer, unsigned Size);
-void minicbor_write_indef_string(minicbor_writer_t *Writer);
+void minicbor_write_array(void *UserData, minicbor_write_fn WriteFn, unsigned Size);
+void minicbor_write_indef_array(void *UserData, minicbor_write_fn WriteFn);
 
-void minicbor_write_array(minicbor_writer_t *Writer, unsigned Size);
-void minicbor_write_indef_array(minicbor_writer_t *Writer);
+void minicbor_write_map(void *UserData, minicbor_write_fn WriteFn, unsigned Size);
+void minicbor_write_indef_map(void *UserData, minicbor_write_fn WriteFn);
 
-void minicbor_write_map(minicbor_writer_t *Writer, unsigned Size);
-void minicbor_write_indef_map(minicbor_writer_t *Writer);
+void minicbor_write_float(void *UserData, minicbor_write_fn WriteFn, double Number);
 
-void minicbor_write_float(minicbor_writer_t *Writer, double Number);
+void minicbor_write_simple(void *UserData, minicbor_write_fn WriteFn, unsigned char Simple);
 
-void minicbor_write_simple(minicbor_writer_t *Writer, unsigned char Simple);
+void minicbor_write_break(void *UserData, minicbor_write_fn WriteFn);
 
-void minicbor_write_break(minicbor_writer_t *Writer);
-
-void minicbor_write_tag(minicbor_writer_t *Writer, uint64_t Tag);
+void minicbor_write_tag(void *UserData, minicbor_write_fn WriteFn, uint64_t Tag);
 
 
 typedef struct minicbor_reader_t minicbor_reader_t;

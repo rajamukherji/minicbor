@@ -12,19 +12,41 @@ static void minicbor_write_number(void *UserData, minicbor_write_fn WriteFn, uin
 		WriteFn(UserData, Bytes, 1);
 	} else if (Absolute <= 0xFF) {
 		Bytes[0] = Base + 0x18;
-		*(uint8_t *)(Bytes + 1) = Absolute;
+		Bytes[1] = Absolute & 0xFF;
 		WriteFn(UserData, Bytes, 2);
 	} else if (Absolute <= 0xFFFF) {
 		Bytes[0] = Base + 0x19;
-		*(uint16_t *)(Bytes + 1) = Absolute;
+		Bytes[2] = Absolute & 0xFF;
+		Absolute >>= 8;
+		Bytes[1] = Absolute & 0xFF;
 		WriteFn(UserData, Bytes, 3);
 	} else if (Absolute <= 0xFFFFFFFF){
 		Bytes[0] = Base + 0x1A;
-		*(uint32_t *)(Bytes + 1) = Absolute;
+		Bytes[4] = Absolute & 0xFF;
+		Absolute >>= 8;
+		Bytes[3] = Absolute & 0xFF;
+		Absolute >>= 8;
+		Bytes[2] = Absolute & 0xFF;
+		Absolute >>= 8;
+		Bytes[1] = Absolute & 0xFF;
 		WriteFn(UserData, Bytes, 5);
 	} else {
 		Bytes[0] = Base + 0x1B;
-		*(uint64_t *)(Bytes + 1) = Absolute;
+		Bytes[8] = Absolute & 0xFF;
+		Absolute >>= 8;
+		Bytes[7] = Absolute & 0xFF;
+		Absolute >>= 8;
+		Bytes[6] = Absolute & 0xFF;
+		Absolute >>= 8;
+		Bytes[5] = Absolute & 0xFF;
+		Absolute >>= 8;
+		Bytes[4] = Absolute & 0xFF;
+		Absolute >>= 8;
+		Bytes[3] = Absolute & 0xFF;
+		Absolute >>= 8;
+		Bytes[2] = Absolute & 0xFF;
+		Absolute >>= 8;
+		Bytes[1] = Absolute & 0xFF;
 		WriteFn(UserData, Bytes, 9);
 	}
 }

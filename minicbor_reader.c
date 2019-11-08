@@ -6,6 +6,47 @@ void minicbor_reader_init(minicbor_reader_t *Reader) {
 	Reader->State = MCS_DEFAULT;
 }
 
+static inline uint64_t minicbor_read8(unsigned char *Bytes) {
+	return Bytes[0];
+}
+
+static inline uint64_t minicbor_read16(unsigned char *Bytes) {
+	uint64_t Number = Bytes[0];
+	Number <<= 8;
+	Number += Bytes[1];
+	return Number;
+}
+
+static inline uint64_t minicbor_read32(unsigned char *Bytes) {
+	uint64_t Number = Bytes[0];
+	Number <<= 8;
+	Number += Bytes[1];
+	Number <<= 8;
+	Number += Bytes[2];
+	Number <<= 8;
+	Number += Bytes[3];
+	return Number;
+}
+
+static inline uint64_t minicbor_read64(unsigned char *Bytes) {
+	uint64_t Number = Bytes[0];
+	Number <<= 8;
+	Number += Bytes[1];
+	Number <<= 8;
+	Number += Bytes[2];
+	Number <<= 8;
+	Number += Bytes[3];
+	Number <<= 8;
+	Number += Bytes[4];
+	Number <<= 8;
+	Number += Bytes[5];
+	Number <<= 8;
+	Number += Bytes[6];
+	Number <<= 8;
+	Number += Bytes[7];
+	return Number;
+}
+
 void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Available) {
 	Reader->Position += Available;
 	minicbor_state_t State = Reader->State;
@@ -108,10 +149,10 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 		if (!Required) {
 			uint64_t Number = 0;
 			switch (Reader->Width) {
-			case 1: Number = *(uint8_t *)Reader->Buffer; break;
-			case 2: Number = *(uint16_t *)Reader->Buffer; break;
-			case 4: Number = *(uint32_t *)Reader->Buffer; break;
-			case 8: Number = *(uint64_t *)Reader->Buffer; break;
+			case 1: Number = minicbor_read8(Reader->Buffer); break;
+			case 2: Number = minicbor_read16(Reader->Buffer); break;
+			case 4: Number = minicbor_read32(Reader->Buffer); break;
+			case 8: Number = minicbor_read64(Reader->Buffer); break;
 			}
 			Reader->PositiveFn(Reader->UserData, Number);
 			State = MCS_DEFAULT;
@@ -131,10 +172,10 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 		if (!Required) {
 			uint64_t Number = 0;
 			switch (Reader->Width) {
-			case 1: Number = *(uint8_t *)Reader->Buffer; break;
-			case 2: Number = *(uint16_t *)Reader->Buffer; break;
-			case 4: Number = *(uint32_t *)Reader->Buffer; break;
-			case 8: Number = *(uint64_t *)Reader->Buffer; break;
+			case 1: Number = minicbor_read8(Reader->Buffer); break;
+			case 2: Number = minicbor_read16(Reader->Buffer); break;
+			case 4: Number = minicbor_read32(Reader->Buffer); break;
+			case 8: Number = minicbor_read64(Reader->Buffer); break;
 			}
 			Reader->NegativeFn(Reader->UserData, Number);
 			State = MCS_DEFAULT;
@@ -154,10 +195,10 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 		if (!Required) {
 			int Size = 0;
 			switch (Reader->Width) {
-			case 1: Size = *(uint8_t *)Reader->Buffer; break;
-			case 2: Size = *(uint16_t *)Reader->Buffer; break;
-			case 4: Size = *(uint32_t *)Reader->Buffer; break;
-			case 8: Size = *(uint64_t *)Reader->Buffer; break;
+			case 1: Size = minicbor_read8(Reader->Buffer); break;
+			case 2: Size = minicbor_read16(Reader->Buffer); break;
+			case 4: Size = minicbor_read32(Reader->Buffer); break;
+			case 8: Size = minicbor_read64(Reader->Buffer); break;
 			}
 			Reader->BytesFn(Reader->UserData, Size);
 			Reader->Required = Size;
@@ -178,10 +219,10 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 		if (!Required) {
 			int Size = 0;
 			switch (Reader->Width) {
-			case 1: Size = *(uint8_t *)Reader->Buffer; break;
-			case 2: Size = *(uint16_t *)Reader->Buffer; break;
-			case 4: Size = *(uint32_t *)Reader->Buffer; break;
-			case 8: Size = *(uint64_t *)Reader->Buffer; break;
+			case 1: Size = minicbor_read8(Reader->Buffer); break;
+			case 2: Size = minicbor_read16(Reader->Buffer); break;
+			case 4: Size = minicbor_read32(Reader->Buffer); break;
+			case 8: Size = minicbor_read64(Reader->Buffer); break;
 			}
 			Reader->BytesFn(Reader->UserData, Size);
 			Reader->Required = Size;
@@ -202,10 +243,10 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 		if (!Required) {
 			int Size = 0;
 			switch (Reader->Width) {
-			case 1: Size = *(uint8_t *)Reader->Buffer; break;
-			case 2: Size = *(uint16_t *)Reader->Buffer; break;
-			case 4: Size = *(uint32_t *)Reader->Buffer; break;
-			case 8: Size = *(uint64_t *)Reader->Buffer; break;
+			case 1: Size = minicbor_read8(Reader->Buffer); break;
+			case 2: Size = minicbor_read16(Reader->Buffer); break;
+			case 4: Size = minicbor_read32(Reader->Buffer); break;
+			case 8: Size = minicbor_read64(Reader->Buffer); break;
 			}
 			Reader->BytesFn(Reader->UserData, Size);
 			Reader->Required = Size;
@@ -226,10 +267,10 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 		if (!Required) {
 			int Size = 0;
 			switch (Reader->Width) {
-			case 1: Size = *(uint8_t *)Reader->Buffer; break;
-			case 2: Size = *(uint16_t *)Reader->Buffer; break;
-			case 4: Size = *(uint32_t *)Reader->Buffer; break;
-			case 8: Size = *(uint64_t *)Reader->Buffer; break;
+			case 1: Size = minicbor_read8(Reader->Buffer); break;
+			case 2: Size = minicbor_read16(Reader->Buffer); break;
+			case 4: Size = minicbor_read32(Reader->Buffer); break;
+			case 8: Size = minicbor_read64(Reader->Buffer); break;
 			}
 			Reader->BytesFn(Reader->UserData, Size);
 			Reader->Required = Size;
@@ -250,10 +291,10 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 		if (!Required) {
 			int Size = 0;
 			switch (Reader->Width) {
-			case 1: Size = *(uint8_t *)Reader->Buffer; break;
-			case 2: Size = *(uint16_t *)Reader->Buffer; break;
-			case 4: Size = *(uint32_t *)Reader->Buffer; break;
-			case 8: Size = *(uint64_t *)Reader->Buffer; break;
+			case 1: Size = minicbor_read8(Reader->Buffer); break;
+			case 2: Size = minicbor_read16(Reader->Buffer); break;
+			case 4: Size = minicbor_read32(Reader->Buffer); break;
+			case 8: Size = minicbor_read64(Reader->Buffer); break;
 			}
 			Reader->ArrayFn(Reader->UserData, Size);
 			Reader->Required = Size;
@@ -274,10 +315,10 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 		if (!Required) {
 			int Size = 0;
 			switch (Reader->Width) {
-			case 1: Size = *(uint8_t *)Reader->Buffer; break;
-			case 2: Size = *(uint16_t *)Reader->Buffer; break;
-			case 4: Size = *(uint32_t *)Reader->Buffer; break;
-			case 8: Size = *(uint64_t *)Reader->Buffer; break;
+			case 1: Size = minicbor_read8(Reader->Buffer); break;
+			case 2: Size = minicbor_read16(Reader->Buffer); break;
+			case 4: Size = minicbor_read32(Reader->Buffer); break;
+			case 8: Size = minicbor_read64(Reader->Buffer); break;
 			}
 			Reader->MapFn(Reader->UserData, Size);
 			Reader->Required = Size;
@@ -298,10 +339,10 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 		if (!Required) {
 			uint64_t Tag = 0;
 			switch (Reader->Width) {
-			case 1: Tag = *(uint8_t *)Reader->Buffer; break;
-			case 2: Tag = *(uint16_t *)Reader->Buffer; break;
-			case 4: Tag = *(uint32_t *)Reader->Buffer; break;
-			case 8: Tag = *(uint64_t *)Reader->Buffer; break;
+			case 1: Tag = minicbor_read8(Reader->Buffer); break;
+			case 2: Tag = minicbor_read16(Reader->Buffer); break;
+			case 4: Tag = minicbor_read32(Reader->Buffer); break;
+			case 8: Tag = minicbor_read64(Reader->Buffer); break;
 			}
 			Reader->TagFn(Reader->UserData, Tag);
 			State = MCS_DEFAULT;

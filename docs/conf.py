@@ -3,6 +3,7 @@ from docutils import nodes
 import re
 from pygments import lexers
 import inspect
+import os
 
 class FoldersDirective(Directive):
 	has_content = True
@@ -70,8 +71,7 @@ author = 'Raja Mukherji'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 
-extensions = [#'sphinxcontrib.fulltoc'
-]
+extensions = ['hawkmoth']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -81,6 +81,8 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+
+cautodoc_root = os.path.abspath('..')
 
 # -- Options for HTML output -------------------------------------------------
 

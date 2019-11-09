@@ -1,3 +1,4 @@
 sphinxcontrib-domaintools
 sphinxcontrib-fulltoc
+clang
 hawkmoth

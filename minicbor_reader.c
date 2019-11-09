@@ -177,6 +177,43 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 		}
 		break;
 	}
+	case MCS_BYTES: {
+		int Required = Reader->Required;
+		if (Available < Required) {
+			Reader->BytesChunkFn(Reader->UserData, Bytes, Available, 0);
+			Reader->Required = Required - Available;
+			Available = 0;
+		} else {
+			Reader->BytesChunkFn(Reader->UserData, Bytes, Required, 1);
+			State = MCS_DEFAULT;
+			Available -= Required;
+			Bytes += Required;
+		}
+		break;
+	}
+	case MCS_BYTES_INDEF: {
+		unsigned char Byte = *Bytes++;
+		--Available;
+		switch (Byte) {
+		case 0x40 ... 0x57:
+			Reader->Required = Byte - 0x40;
+			State = MCS_BYTES_CHUNK;
+			break;
+		case 0x58 ... 0x5B:
+			Reader->Required = 1 << (Byte - 0x58);
+			State = MCS_BYTES_CHUNK_SIZE;
+			break;
+		case 0xFF:
+			Reader->BytesChunkFn(Reader->UserData, Bytes, 0, 1);
+			State = MCS_DEFAULT;
+			break;
+		default:
+			Reader->ErrorFn(Reader->UserData, Reader->Position - Available, "Invalid content in indefinite bytestring");
+			State = MCS_INVALID;
+			break;
+		}
+		break;
+	}
 	case MCS_BYTES_CHUNK_SIZE: {
 		int Required = Reader->Required;
 		while (Available && Required) {
@@ -195,6 +232,20 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			State = MCS_BYTES_CHUNK;
 		} else {
 			Reader->Required = Required;
+		}
+		break;
+	}
+	case MCS_BYTES_CHUNK: {
+		int Required = Reader->Required;
+		if (Available < Required) {
+			Reader->BytesChunkFn(Reader->UserData, Bytes, Available, 0);
+			Reader->Required = Required - Available;
+			Available = 0;
+		} else {
+			Reader->BytesChunkFn(Reader->UserData, Bytes, Required, 0);
+			State = MCS_BYTES_INDEF;
+			Available -= Required;
+			Bytes += Required;
 		}
 		break;
 	}
@@ -220,6 +271,43 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 		}
 		break;
 	}
+	case MCS_STRING: {
+		int Required = Reader->Required;
+		if (Available < Required) {
+			Reader->StringChunkFn(Reader->UserData, Bytes, Available, 0);
+			Reader->Required = Required - Available;
+			Available = 0;
+		} else {
+			Reader->StringChunkFn(Reader->UserData, Bytes, Required, 1);
+			State = MCS_DEFAULT;
+			Available -= Required;
+			Bytes += Required;
+		}
+		break;
+	}
+	case MCS_STRING_INDEF: {
+		unsigned char Byte = *Bytes++;
+		--Available;
+		switch (Byte) {
+		case 0x60 ... 0x77:
+			Reader->Required = Byte - 0x60;
+			State = MCS_STRING_CHUNK;
+			break;
+		case 0x78 ... 0x7B:
+			Reader->Required = 1 << (Byte - 0x78);
+			State = MCS_STRING_CHUNK_SIZE;
+			break;
+		case 0xFF:
+			Reader->StringChunkFn(Reader->UserData, Bytes, 0, 1);
+			State = MCS_DEFAULT;
+			break;
+		default:
+			Reader->ErrorFn(Reader->UserData, Reader->Position - Available, "Invalid content in indefinite string");
+			State = MCS_INVALID;
+			break;
+		}
+		break;
+	}
 	case MCS_STRING_CHUNK_SIZE: {
 		int Required = Reader->Required;
 		while (Available && Required) {
@@ -238,6 +326,20 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			State = MCS_STRING_CHUNK;
 		} else {
 			Reader->Required = Required;
+		}
+		break;
+	}
+	case MCS_STRING_CHUNK: {
+		int Required = Reader->Required;
+		if (Available < Required) {
+			Reader->StringChunkFn(Reader->UserData, Bytes, Available, 0);
+			Reader->Required = Required - Available;
+			Available = 0;
+		} else {
+			Reader->StringChunkFn(Reader->UserData, Bytes, Required, 0);
+			State = MCS_STRING_INDEF;
+			Available -= Required;
+			Bytes += Required;
 		}
 		break;
 	}
@@ -303,108 +405,6 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			State = MCS_DEFAULT;
 		} else {
 			Reader->Required = Required;
-		}
-		break;
-	}
-	case MCS_BYTES: {
-		int Required = Reader->Required;
-		if (Available < Required) {
-			Reader->BytesChunkFn(Reader->UserData, Bytes, Available, 0);
-			Reader->Required = Required - Available;
-			Available = 0;
-		} else {
-			Reader->BytesChunkFn(Reader->UserData, Bytes, Required, 1);
-			State = MCS_DEFAULT;
-			Available -= Required;
-			Bytes += Required;
-		}
-		break;
-	}
-	case MCS_BYTES_INDEF: {
-		unsigned char Byte = *Bytes++;
-		--Available;
-		switch (Byte) {
-		case 0x40 ... 0x57:
-			Reader->Required = Byte - 0x40;
-			State = MCS_BYTES_CHUNK;
-			break;
-		case 0x58 ... 0x5B:
-			Reader->Required = 1 << (Byte - 0x58);
-			State = MCS_BYTES_CHUNK_SIZE;
-			break;
-		case 0xFF:
-			Reader->BytesChunkFn(Reader->UserData, Bytes, 0, 1);
-			State = MCS_DEFAULT;
-			break;
-		default:
-			Reader->ErrorFn(Reader->UserData, Reader->Position - Available, "Invalid content in indefinite bytestring");
-			State = MCS_INVALID;
-			break;
-		}
-		break;
-	}
-	case MCS_BYTES_CHUNK: {
-		int Required = Reader->Required;
-		if (Available < Required) {
-			Reader->BytesChunkFn(Reader->UserData, Bytes, Available, 0);
-			Reader->Required = Required - Available;
-			Available = 0;
-		} else {
-			Reader->BytesChunkFn(Reader->UserData, Bytes, Required, 0);
-			State = MCS_BYTES_INDEF;
-			Available -= Required;
-			Bytes += Required;
-		}
-		break;
-	}
-	case MCS_STRING: {
-		int Required = Reader->Required;
-		if (Available < Required) {
-			Reader->StringChunkFn(Reader->UserData, Bytes, Available, 0);
-			Reader->Required = Required - Available;
-			Available = 0;
-		} else {
-			Reader->StringChunkFn(Reader->UserData, Bytes, Required, 1);
-			State = MCS_DEFAULT;
-			Available -= Required;
-			Bytes += Required;
-		}
-		break;
-	}
-	case MCS_STRING_INDEF: {
-		unsigned char Byte = *Bytes++;
-		--Available;
-		switch (Byte) {
-		case 0x60 ... 0x77:
-			Reader->Required = Byte - 0x60;
-			State = MCS_STRING_CHUNK;
-			break;
-		case 0x78 ... 0x7B:
-			Reader->Required = 1 << (Byte - 0x78);
-			State = MCS_STRING_CHUNK_SIZE;
-			break;
-		case 0xFF:
-			Reader->StringChunkFn(Reader->UserData, Bytes, 0, 1);
-			State = MCS_DEFAULT;
-			break;
-		default:
-			Reader->ErrorFn(Reader->UserData, Reader->Position - Available, "Invalid content in indefinite string");
-			State = MCS_INVALID;
-			break;
-		}
-		break;
-	}
-	case MCS_STRING_CHUNK: {
-		int Required = Reader->Required;
-		if (Available < Required) {
-			Reader->StringChunkFn(Reader->UserData, Bytes, Available, 0);
-			Reader->Required = Required - Available;
-			Available = 0;
-		} else {
-			Reader->StringChunkFn(Reader->UserData, Bytes, Required, 0);
-			State = MCS_STRING_INDEF;
-			Available -= Required;
-			Bytes += Required;
 		}
 		break;
 	}

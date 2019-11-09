@@ -15,8 +15,8 @@ ifdef DEBUG
 	CFLAGS += -g -DGC_DEBUG -DDEBUG
 	LDFLAGS += -g
 else
-	CFLAGS += -O3 -g
-	LDFLAGS += -g
+	CFLAGS += -O3
+	LDFLAGS +=
 endif
 
 common_objects = \

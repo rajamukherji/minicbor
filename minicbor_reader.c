@@ -191,7 +191,6 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			case 4: Size = minicbor_read32(Reader->Buffer); break;
 			case 8: Size = minicbor_read64(Reader->Buffer); break;
 			}
-			Reader->BytesFn(Reader->UserData, Size);
 			Reader->Required = Size;
 			State = MCS_BYTES_CHUNK;
 		} else {
@@ -213,7 +212,7 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			case 4: Size = minicbor_read32(Reader->Buffer); break;
 			case 8: Size = minicbor_read64(Reader->Buffer); break;
 			}
-			Reader->BytesFn(Reader->UserData, Size);
+			Reader->StringFn(Reader->UserData, Size);
 			Reader->Required = Size;
 			State = MCS_STRING;
 		} else {
@@ -235,7 +234,6 @@ void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Ava
 			case 4: Size = minicbor_read32(Reader->Buffer); break;
 			case 8: Size = minicbor_read64(Reader->Buffer); break;
 			}
-			Reader->BytesFn(Reader->UserData, Size);
 			Reader->Required = Size;
 			State = MCS_STRING_CHUNK;
 		} else {

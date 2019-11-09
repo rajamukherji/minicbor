@@ -3,59 +3,86 @@
 
 #include <stdint.h>
 
-typedef struct minicbor_writer_t minicbor_writer_t;
-typedef int (*minicbor_write_fn)(void *State, const void *Data, unsigned Size);
+#define CBOR_SIMPLE_FALSE 20
+#define CBOR_SIMPLE_TRUE 21
+#define CBOR_SIMPLE_NULL 22
+#define CBOR_SIMPLE_UNDEF 23
 
-minicbor_writer_t *minicbor_writer_new(void *State, minicbor_write_fn WriteFn);
+typedef int (*minicbor_write_fn)(void *State, const void *UserData, unsigned Size);
 
-void minicbor_write_int(minicbor_writer_t *Writer, int64_t Number);
-void minicbor_write_uint(minicbor_writer_t *Writer, uint64_t Number);
+void minicbor_write_integer(void *UserData, minicbor_write_fn WriteFn, int64_t Number);
 
-void minicbor_write_bytes(minicbor_writer_t *Writer, const void *Bytes, unsigned Size);
-void minicbor_write_bytes_open(minicbor_writer_t *Writer);
+void minicbor_write_positive(void *UserData, minicbor_write_fn WriteFn, uint64_t Number);
+void minicbor_write_negative(void *UserData, minicbor_write_fn WriteFn, uint64_t Number);
 
-void minicbor_write_string(minicbor_writer_t *Writer, const char *String, unsigned Size);
-void minicbor_write_indef_string(minicbor_writer_t *Writer);
+void minicbor_write_bytes(void *UserData, minicbor_write_fn WriteFn, unsigned Size);
+void minicbor_write_indef_bytes(void *UserData, minicbor_write_fn WriteFn);
 
-void minicbor_write_array(minicbor_writer_t *Writer, unsigned Size);
-void minicbor_write_indef_array(minicbor_writer_t *Writer);
+void minicbor_write_string(void *UserData, minicbor_write_fn WriteFn, unsigned Size);
+void minicbor_write_indef_string(void *UserData, minicbor_write_fn WriteFn);
 
-void minicbor_write_map(minicbor_writer_t *Writer, unsigned Size);
-void minicbor_write_indef_map(minicbor_writer_t *Writer);
+void minicbor_write_array(void *UserData, minicbor_write_fn WriteFn, unsigned Size);
+void minicbor_write_indef_array(void *UserData, minicbor_write_fn WriteFn);
 
-void minicbor_write_float(minicbor_writer_t *Writer, double Number);
+void minicbor_write_map(void *UserData, minicbor_write_fn WriteFn, unsigned Size);
+void minicbor_write_indef_map(void *UserData, minicbor_write_fn WriteFn);
 
-void minicbor_write_false(minicbor_writer_t *Writer);
-void minicbor_write_true(minicbor_writer_t *Writer);
-void minicbor_write_null(minicbor_writer_t *Writer);
-void minicbor_write_undef(minicbor_writer_t *Writer);
+void minicbor_write_float2(void *UserData, minicbor_write_fn WriteFn, double Number);
+void minicbor_write_float4(void *UserData, minicbor_write_fn WriteFn, double Number);
+void minicbor_write_float8(void *UserData, minicbor_write_fn WriteFn, double Number);
 
-void minicbor_write_break(minicbor_writer_t *Writer);
+void minicbor_write_simple(void *UserData, minicbor_write_fn WriteFn, unsigned char Simple);
 
-void minicbor_write_tag(minicbor_writer_t *Writer, uint64_t Tag);
+void minicbor_write_break(void *UserData, minicbor_write_fn WriteFn);
+
+void minicbor_write_tag(void *UserData, minicbor_write_fn WriteFn, uint64_t Tag);
 
 
 typedef struct minicbor_reader_t minicbor_reader_t;
 
-minicbor_reader_t *minicbor_reader_new();
-void minicbor_set_userdata(minicbor_reader_t *Reader, void *UserData);
-void minicbor_set_positive_fn(minicbor_reader_t *Reader, void (*PositiveFn)(void *UserData, uint64_t Number));
-void minicbor_set_negative_fn(minicbor_reader_t *Reader, void (*NegativeFn)(void *UserData, uint64_t Number));
-void minicbor_set_bytes_fn(minicbor_reader_t *Reader, void (*BytesFn)(void *UserData, int Size));
-void minicbor_set_bytes_chunk_fn(minicbor_reader_t *Reader, void (*BytesChunkFn)(void *UserData, void *Bytes, int Size, int Final));
-void minicbor_set_string_fn(minicbor_reader_t *Reader, void (*StringFn)(void *UserData, int Size));
-void minicbor_set_string_chunk_fn(minicbor_reader_t *Reader, void (*StringChunkFn)(void *UserData, void *Bytes, int Size, int Final));
-void minicbor_set_array_fn(minicbor_reader_t *Reader, void (*ArrayFn)(void *UserData, int Size));
-void minicbor_set_map_fn(minicbor_reader_t *Reader, void (*MapFn)(void *UserData, int Size));
-void minicbor_set_tag_fn(minicbor_reader_t *Reader, void (*TagFn)(void *UserData, uint64_t Tag));
-void minicbor_set_false_fn(minicbor_reader_t *Reader, void (*FalseFn)(void *UserData));
-void minicbor_set_true_fn(minicbor_reader_t *Reader, void (*TrueFn)(void *UserData));
-void minicbor_set_null_fn(minicbor_reader_t *Reader, void (*NullFn)(void *UserData));
-void minicbor_set_undefined_fn(minicbor_reader_t *Reader, void (*UndefinedFn)(void *UserData));
-void minicbor_set_simple_fn(minicbor_reader_t *Reader, void (*SimpleFn)(void *UserData, int Value));
-void minicbor_set_float_fn(minicbor_reader_t *Reader, void (*FloatFn)(void *UserData, double Number));
-void minicbor_set_break_fn(minicbor_reader_t *Reader, void (*BreakFn)(void *UserData));
-void minicbor_set_error_fn(minicbor_reader_t *Reader, void (*ErrorFn)(void *UserData, int Position, const char *Message));
+typedef enum {
+	MCS_DEFAULT,
+	MCS_POSITIVE,
+	MCS_NEGATIVE,
+	MCS_BYTES_SIZE,
+	MCS_BYTES,
+	MCS_BYTES_INDEF,
+	MCS_BYTES_CHUNK_SIZE,
+	MCS_BYTES_CHUNK,
+	MCS_STRING_SIZE,
+	MCS_STRING,
+	MCS_STRING_INDEF,
+	MCS_STRING_CHUNK_SIZE,
+	MCS_STRING_CHUNK,
+	MCS_ARRAY_SIZE,
+	MCS_MAP_SIZE,
+	MCS_TAG,
+	MCS_SIMPLE,
+	MCS_FLOAT,
+	MCS_INVALID
+} minicbor_state_t;
+
+struct minicbor_reader_t {
+	unsigned char Buffer[8];
+	void (*PositiveFn)(void *UserData, uint64_t Number);
+	void (*NegativeFn)(void *UserData, uint64_t Number);
+	void (*BytesFn)(void *UserData, int Size);
+	void (*BytesChunkFn)(void *UserData, void *Bytes, int Size, int Final);
+	void (*StringFn)(void *UserData, int Size);
+	void (*StringChunkFn)(void *UserData, void *Bytes, int Size, int Final);
+	void (*ArrayFn)(void *UserData, int Size);
+	void (*MapFn)(void *UserData, int Size);
+	void (*TagFn)(void *UserData, uint64_t Tag);
+	void (*SimpleFn)(void *UserData, int Value);
+	void (*FloatFn)(void *UserData, double Number);
+	void (*BreakFn)(void *UserData);
+	void (*ErrorFn)(void *UserData, int Position, const char *Message);
+	void *UserData;
+	int Position, Width, Required;
+	minicbor_state_t State;
+};
+
+void minicbor_reader_init(minicbor_reader_t *Reader);
 void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Available);
 
 #endif

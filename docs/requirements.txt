@@ -1,3 +1,2 @@
 sphinxcontrib-domaintools
 sphinxcontrib-fulltoc
-hawkmoth

@@ -14,7 +14,8 @@ Example
    :maxdepth: 2
    :caption: Contents:
    
-   /reference
+   /reading
+   /writing
 
 Indices and tables
 ==================

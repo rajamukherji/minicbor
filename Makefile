@@ -23,6 +23,14 @@ ifdef GLOBAL_FN_PREFIX
 	CFLAGS += -DMINICBOR_GLOBAL_FN_PREFIX=$(GLOBAL_FN_PREFIX)
 endif
 
+ifdef READDATA_TYPE
+	CFLAGS += -DMINICBOR_READDATA_TYPE="$(READDATA_TYPE)"
+endif
+
+ifdef WRITEDATA_TYPE
+	CFLAGS += -DMINICBOR_WRITEDATA_TYPE="$(WRITEDATA_TYPE)"
+endif
+
 common_objects = \
 	minicbor_reader.o \
 	minicbor_writer.o

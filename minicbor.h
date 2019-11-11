@@ -155,24 +155,30 @@ typedef enum {
 	MCS_INVALID
 } minicbor_state_t;
 
+#ifdef MINICBOR_READDATA_TYPE
+typedef MINICBOR_READDATA_TYPE minicbor_readdata_t;
+#else
+typedef void *minicbor_readdata_t;
+#endif
+
 #ifdef MINICBOR_GLOBAL_FN_PREFIX
 
 #define MINICBOR_CONCAT2(X, Y) X ## Y
 #define MINICBOR_CONCAT(X, Y) MINICBOR_CONCAT2(X, Y)
 
-void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, positive_fn)(void *UserData, uint64_t Number);
-void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, negative_fn)(void *UserData, uint64_t Number);
-void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, bytes_fn)(void *UserData, int Size);
-void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, bytes_piece_fn)(void *UserData, void *Bytes, int Size, int Final);
-void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, string_fn)(void *UserData, int Size);
-void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, string_piece_fn)(void *UserData, void *Bytes, int Size, int Final);
-void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, array_fn)(void *UserData, int Size);
-void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, map_fn)(void *UserData, int Size);
-void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, tag_fn)(void *UserData, uint64_t Tag);
-void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, simple_fn)(void *UserData, int Value);
-void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, float_fn)(void *UserData, double Number);
-void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, break_fn)(void *UserData);
-void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, error_fn)(void *UserData, int Position, const char *Message);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, positive_fn)(minicbor_readdata_t UserData, uint64_t Number);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, negative_fn)(minicbor_readdata_t UserData, uint64_t Number);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, bytes_fn)(minicbor_readdata_t UserData, int Size);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, bytes_piece_fn)(minicbor_readdata_t UserData, void *Bytes, int Size, int Final);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, string_fn)(minicbor_readdata_t UserData, int Size);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, string_piece_fn)(minicbor_readdata_t UserData, void *Bytes, int Size, int Final);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, array_fn)(minicbor_readdata_t UserData, int Size);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, map_fn)(minicbor_readdata_t UserData, int Size);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, tag_fn)(minicbor_readdata_t UserData, uint64_t Tag);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, simple_fn)(minicbor_readdata_t UserData, int Value);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, float_fn)(minicbor_readdata_t UserData, double Number);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, break_fn)(minicbor_readdata_t UserData);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, error_fn)(minicbor_readdata_t UserData, int Position, const char *Message);
 
 #endif
 
@@ -184,18 +190,18 @@ typedef struct minicbor_reader_t {
 	/**
 	 * Passed as the first argument to each callback.
 	 */
-	void *UserData;
+	minicbor_readdata_t UserData;
 
 #ifndef MINICBOR_GLOBAL_FN_PREFIX
 	/**
 	 * Called when a positive integer is encountered.
 	 */
-	void (*PositiveFn)(void *UserData, uint64_t Number);
+	void (*PositiveFn)(minicbor_readdata_t UserData, uint64_t Number);
 
 	/**
 	 * Called when a negative integer is encountered.
 	 */
-	void (*NegativeFn)(void *UserData, uint64_t Number);
+	void (*NegativeFn)(minicbor_readdata_t UserData, uint64_t Number);
 
 	/**
 	 * Called when a bytestring is encountered.
@@ -203,13 +209,13 @@ typedef struct minicbor_reader_t {
 	 * For definite empty bytestrings, :code:`Size` is :code:`0` and :code:`BytesPieceFn()` is not called.
 	 * Otherwise, :code:`BytesPieceFn()` will be called one or more times, with the last call having :code:`Final` set to :code:`1`.
 	 */
-	void (*BytesFn)(void *UserData, int Size);
+	void (*BytesFn)(minicbor_readdata_t UserData, int Size);
 
 	/**
 	 * Called for each piece of a bytestring.
 	 * Note that pieces here do not correspond to CBOR chunks: there may be more pieces than chunks due to streaming.
 	 */
-	void (*BytesPieceFn)(void *UserData, void *Bytes, int Size, int Final);
+	void (*BytesPieceFn)(minicbor_readdata_t UserData, void *Bytes, int Size, int Final);
 
 	/**
 	 * Called when a string is encountered.
@@ -217,53 +223,53 @@ typedef struct minicbor_reader_t {
 	 * For definite empty strings, :code:`Size` is :code:`0` and :code:`StringPieceFn()` is not called.
 	 * Otherwise, :code:`StringPieceFn()` will be called one or more times, with the last call having :code:`Final` set to :code:`1`.
 	 */
-	void (*StringFn)(void *UserData, int Size);
+	void (*StringFn)(minicbor_readdata_t UserData, int Size);
 
 	/**
 	 * Called for each piece of a string.
 	 * Note that pieces here do not correspond to CBOR chunks: there may be more pieces than chunks due to streaming.
 	 */
-	void (*StringPieceFn)(void *UserData, void *Bytes, int Size, int Final);
+	void (*StringPieceFn)(minicbor_readdata_t UserData, void *Bytes, int Size, int Final);
 
 	/**
 	 * Called when an array is encountered.
 	 * :code:`Size` is nonnegative for definite array and :code:`-1` for indefinite arrays.
 	 */
-	void (*ArrayFn)(void *UserData, int Size);
+	void (*ArrayFn)(minicbor_readdata_t UserData, int Size);
 
 	/**
 	 * Called when an map is encountered.
 	 * :code:`Size` is nonnegative for definite map and :code:`-1` for indefinite maps.
 	 */
-	void (*MapFn)(void *UserData, int Size);
+	void (*MapFn)(minicbor_readdata_t UserData, int Size);
 
 	/**
 	 * Called when a tag is encountered.
 	 */
-	void (*TagFn)(void *UserData, uint64_t Tag);
+	void (*TagFn)(minicbor_readdata_t UserData, uint64_t Tag);
 
 	/**
 	 * Called when a simple value is encounted.
 	 */
-	void (*SimpleFn)(void *UserData, int Value);
+	void (*SimpleFn)(minicbor_readdata_t UserData, int Value);
 
 	/**
 	 * Called when a floating point number is encountered.
 	 */
-	void (*FloatFn)(void *UserData, double Number);
+	void (*FloatFn)(minicbor_readdata_t UserData, double Number);
 
 	/**
 	 *
 	 * Called when a break is encountered.
 	 * This is **not** called for breaks at the end of an indefinite bytestring or string, instead :code:`Final` is set to :code:`1` in the corresponding piece callback.
 	 */
-	void (*BreakFn)(void *UserData);
+	void (*BreakFn)(minicbor_readdata_t UserData);
 
 	/**
 	 * Called when an invalid CBOR sequence is detected.
 	 * This puts the reader in an invalid state, any further calls will simply trigger another call :code:`ErrorFn()`;
 	 */
-	void (*ErrorFn)(void *UserData, int Position, const char *Message);
+	void (*ErrorFn)(minicbor_readdata_t UserData, int Position, const char *Message);
 #endif
 
 	unsigned char Buffer[8];

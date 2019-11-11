@@ -19,6 +19,10 @@ else
 	LDFLAGS +=
 endif
 
+ifdef GLOBAL_FN_PREFIX
+	CFLAGS += -DMINICBOR_GLOBAL_FN_PREFIX=$(GLOBAL_FN_PREFIX)
+endif
+
 common_objects = \
 	minicbor_reader.o \
 	minicbor_writer.o

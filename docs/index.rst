@@ -51,6 +51,8 @@ Reading a CBOR stream
 Writing a CBOR stream
 ~~~~~~~~~~~~~~~~~~~~~
 
+When an underlying stream type object is available, such as a file handle or an in-memory appendable buffer, simply pass a suitable :c:type:`minicbor_write_fn` to the :c:func:`minicbor_write_*` functions.
+
 .. code-block:: c
 
    #include <minicbor.h>
@@ -65,9 +67,35 @@ Writing a CBOR stream
       minicbor_write_string(Stream, stream_write, strlen("Hello world!"));
       stream_write(Stream, "Hello world!", strlen("Hello world!"));
       minicbor_write_integer(Stream, stream_write, 100);
-      minicbor_write_float4(Stream, stream_write,1.2);
+      minicbor_write_float4(Stream, stream_write, 1.2);
       minicbor_write_break(Stream, stream_write);
    }
+
+Presizing a CBOR output before writing
+......................................
+
+If a contiguous output buffer is required, then the required CBOR buffer size can be calculated by calling the :c:func:`minicbor_write_*` functions twice.
+
+#. For the first pass, use a :c:type:`minicbor_write_fn` that takes a pointer to a :c:type:`size_t` and simply increments the value with the value of :c:data:`Size`.
+ For example:
+
+   .. code-block:: c
+   
+      static void calculate_size(size_t *Required, unsigned char *Bytes, int Size) {
+         *Required += Size;
+      }
+   
+   Remember to increment :c:data:`Total` with the content sizes of any bytestrings or strings since there are no :c:func:`minicbor_write_*` for those.
+
+#. Then allocate a buffer (e.g. using :c:func:`malloc`) and use a :c:type:`minicbor_write_fn` that actual writes the data to the end of the buffer. For example:
+
+   .. code-block:: c
+   
+      static void write_bytes(unsigned char **Tail, unsigned char *Bytes, int Size) {
+         memcpy(*Tail, Bytes, Size);
+         *Tail += Size;
+      }
+
 
 .. toctree::
    :maxdepth: 2

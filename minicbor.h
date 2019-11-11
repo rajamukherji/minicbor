@@ -155,6 +155,27 @@ typedef enum {
 	MCS_INVALID
 } minicbor_state_t;
 
+#ifdef MINICBOR_GLOBAL_FN_PREFIX
+
+#define MINICBOR_CONCAT2(X, Y) X ## Y
+#define MINICBOR_CONCAT(X, Y) MINICBOR_CONCAT2(X, Y)
+
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, positive_fn)(void *UserData, uint64_t Number);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, negative_fn)(void *UserData, uint64_t Number);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, bytes_fn)(void *UserData, int Size);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, bytes_piece_fn)(void *UserData, void *Bytes, int Size, int Final);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, string_fn)(void *UserData, int Size);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, string_piece_fn)(void *UserData, void *Bytes, int Size, int Final);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, array_fn)(void *UserData, int Size);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, map_fn)(void *UserData, int Size);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, tag_fn)(void *UserData, uint64_t Tag);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, simple_fn)(void *UserData, int Value);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, float_fn)(void *UserData, double Number);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, break_fn)(void *UserData);
+void MINICBOR_CONCAT(MINICBOR_GLOBAL_FN_PREFIX, error_fn)(void *UserData, int Position, const char *Message);
+
+#endif
+
 /**
  * A reader for a CBOR stream.
  * Must be initialized with :c:func:`minicbor_reader_init()` before use (and reuse).
@@ -165,6 +186,7 @@ typedef struct minicbor_reader_t {
 	 */
 	void *UserData;
 
+#ifndef MINICBOR_GLOBAL_FN_PREFIX
 	/**
 	 * Called when a positive integer is encountered.
 	 */
@@ -242,6 +264,7 @@ typedef struct minicbor_reader_t {
 	 * This puts the reader in an invalid state, any further calls will simply trigger another call :code:`ErrorFn()`;
 	 */
 	void (*ErrorFn)(void *UserData, int Position, const char *Message);
+#endif
 
 	unsigned char Buffer[8];
 	int Position, Width, Required;

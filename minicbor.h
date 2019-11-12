@@ -41,7 +41,7 @@ typedef void *minicbor_writedata_t;
  * :param Bytes: Bytes to write.
  * :param Size: Number of bytes.
  */
-typedef int (*minicbor_write_fn)(minicbor_writedata_t UserData, const void *Bytes, unsigned Size);
+typedef int (*minicbor_write_fn)(minicbor_writedata_t UserData, const unsigned char *Bytes, unsigned Size);
 
 #endif
 
@@ -300,6 +300,6 @@ void minicbor_reader_init(minicbor_reader_t *Reader);
 /**
  * Parse some CBOR bytes and call the appropriate callbacks.
  */
-void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Size);
+void minicbor_read(minicbor_reader_t *Reader, const unsigned char *Bytes, unsigned Size);
 
 #endif

@@ -56,7 +56,7 @@ static inline uint64_t minicbor_read64(unsigned char *Bytes) {
 
 #endif
 
-void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Available) {
+void minicbor_read(minicbor_reader_t *Reader, const unsigned char *Bytes, unsigned AVailable) {
 	unsigned char *Buffer = Reader->Buffer;
 	Reader->Position += Available;
 	minicbor_state_t State = Reader->State;

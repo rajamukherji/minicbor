@@ -182,9 +182,9 @@ typedef void *minicbor_readdata_t;
 void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, positive_fn)(minicbor_readdata_t UserData, uint64_t Number);
 void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, negative_fn)(minicbor_readdata_t UserData, uint64_t Number);
 void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, bytes_fn)(minicbor_readdata_t UserData, int Size);
-void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, bytes_piece_fn)(minicbor_readdata_t UserData, void *Bytes, int Size, int Final);
+void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, bytes_piece_fn)(minicbor_readdata_t UserData, const void *Bytes, int Size, int Final);
 void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, string_fn)(minicbor_readdata_t UserData, int Size);
-void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, string_piece_fn)(minicbor_readdata_t UserData, void *Bytes, int Size, int Final);
+void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, string_piece_fn)(minicbor_readdata_t UserData, const void *Bytes, int Size, int Final);
 void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, array_fn)(minicbor_readdata_t UserData, int Size);
 void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, map_fn)(minicbor_readdata_t UserData, int Size);
 void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, tag_fn)(minicbor_readdata_t UserData, uint64_t Tag);
@@ -228,7 +228,7 @@ typedef struct minicbor_reader_t {
 	 * Called for each piece of a bytestring.
 	 * Note that pieces here do not correspond to CBOR chunks: there may be more pieces than chunks due to streaming.
 	 */
-	void (*BytesPieceFn)(minicbor_readdata_t UserData, void *Bytes, int Size, int Final);
+	void (*BytesPieceFn)(minicbor_readdata_t UserData, const void *Bytes, int Size, int Final);
 
 	/**
 	 * Called when a string is encountered.
@@ -242,7 +242,7 @@ typedef struct minicbor_reader_t {
 	 * Called for each piece of a string.
 	 * Note that pieces here do not correspond to CBOR chunks: there may be more pieces than chunks due to streaming.
 	 */
-	void (*StringPieceFn)(minicbor_readdata_t UserData, void *Bytes, int Size, int Final);
+	void (*StringPieceFn)(minicbor_readdata_t UserData, const void *Bytes, int Size, int Final);
 
 	/**
 	 * Called when an array is encountered.

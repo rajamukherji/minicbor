@@ -134,6 +134,11 @@ void MINICBOR(write_float4)(MINICBOR_WRITE_PARAMS, double Number) {
 	char Bytes[5];
 	Bytes[0] = 0xFA;
 	*(float *)(Bytes + 1) = Number;
+	for (int I = 3; --I > 0;) {
+		char T = Bytes[I];
+		Bytes[I] = Bytes[5 - I];
+		Bytes[5 - I] = T;
+	}
 	MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 5);
 }
 
@@ -141,6 +146,11 @@ void MINICBOR(write_float8)(MINICBOR_WRITE_PARAMS, double Number) {
 	char Bytes[9];
 	Bytes[0] = 0xFB;
 	*(double *)(Bytes + 1) = Number;
+	for (int I = 5; --I > 0;) {
+		char T = Bytes[I];
+		Bytes[I] = Bytes[9 - I];
+		Bytes[9 - I] = T;
+	}
 	MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 9);
 }
 

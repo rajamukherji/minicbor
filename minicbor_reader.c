@@ -205,8 +205,12 @@ void MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsig
 			case 8: Size = MINICBOR(read64)(Buffer); break;
 			}
 			BYTES_FN(Reader->UserData, Size);
-			Reader->Required = Size;
-			State = MCS_BYTES;
+			if (Size) {
+				Reader->Required = Size;
+				State = MCS_BYTES;
+			} else {
+				State = MCS_DEFAULT;
+			}
 		} else {
 			Reader->Required = Required;
 		}
@@ -299,8 +303,12 @@ void MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsig
 			case 8: Size = MINICBOR(read64)(Buffer); break;
 			}
 			STRING_FN(Reader->UserData, Size);
-			Reader->Required = Size;
-			State = MCS_STRING;
+			if (Size) {
+				Reader->Required = Size;
+				State = MCS_STRING;
+			} else {
+				State = MCS_DEFAULT;
+			}
 		} else {
 			Reader->Required = Required;
 		}

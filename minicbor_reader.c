@@ -82,7 +82,7 @@ void MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsig
 		case 0x40 ... 0x57:
 			BYTES_FN(Reader->UserData, Byte - 0x40);
 			Reader->Required = Byte - 0x40;
-			State = MCS_BYTES;
+			State = (Byte - 0x40) ? MCS_STRING : MCS_DEFAULT;
 			break;
 		case 0x58 ... 0x5B:
 			Reader->Width = Reader->Required = 1 << (Byte - 0x58);
@@ -95,7 +95,7 @@ void MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsig
 		case 0x60 ... 0x77:
 			STRING_FN(Reader->UserData, Byte - 0x60);
 			Reader->Required = Byte - 0x60;
-			State = MCS_STRING;
+			State = (Byte - 0x60) ? MCS_STRING : MCS_DEFAULT;
 			break;
 		case 0x78 ... 0x7B:
 			Reader->Width = Reader->Required = 1 << (Byte - 0x78);

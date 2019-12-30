@@ -56,7 +56,7 @@ static inline uint64_t MINICBOR(read64)(unsigned char *Bytes) {
 
 #endif
 
-void MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsigned Available) {
+int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsigned Available) {
 	unsigned char *Buffer = Reader->Buffer;
 	Reader->Position += Available;
 	minicbor_state_t State = Reader->State;
@@ -494,6 +494,13 @@ void MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsig
 	case MCS_INVALID:
 		ERROR_FN(Reader->UserData, Reader->Position - Available, "Reader in invalid state");
 		break;
+	case MCS_FINISHED:
+		return Available;
 	}
 	Reader->State = State;
+	return 0;
+}
+
+void MINICBOR(finish)(minicbor_reader_t *Reader) {
+	Reader->State = MCS_FINISHED;
 }

@@ -174,7 +174,8 @@ typedef enum {
 	MCS_TAG,
 	MCS_SIMPLE,
 	MCS_FLOAT,
-	MCS_INVALID
+	MCS_INVALID,
+	MCS_FINISHED
 } minicbor_state_t;
 
 #ifdef MINICBOR_READDATA_TYPE
@@ -305,7 +306,14 @@ void MINICBOR(reader_init)(minicbor_reader_t *Reader);
 
 /**
  * Parse some CBOR bytes and call the appropriate callbacks.
+ * Returns the number of bytes remaining to be parsed. This will be 0 unless :c:func:`minicbor_reader_finish()` is called within a callback.
  */
-void MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsigned Size);
+int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsigned Size);
+
+/**
+ * Set :code:`Reader` state to :code:`MCS_FINISHED`.
+ * Must be called from within a reader callback.
+ */
+void MINICBOR(reader_finish)(minicbor_reader_t *Reader);
 
 #endif

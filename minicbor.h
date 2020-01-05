@@ -306,7 +306,7 @@ void MINICBOR(reader_init)(minicbor_reader_t *Reader);
 
 /**
  * Parse some CBOR bytes and call the appropriate callbacks.
- * Returns the number of bytes remaining to be parsed. This will be 0 unless :c:func:`minicbor_reader_finish()` is called within a callback.
+ * Returns the 1 if :c:func:`minicbor_reader_finish()` was called within a callback, otherwise returns 0.
  */
 int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsigned Size);
 
@@ -315,5 +315,10 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
  * Must be called from within a reader callback.
  */
 void MINICBOR(reader_finish)(minicbor_reader_t *Reader);
+
+/**
+ * Returns the number of bytes remainining to be parsed by the reader.
+ */
+int MINICBOR(reader_remaining)(minicbor_reader_t *Reader);
 
 #endif

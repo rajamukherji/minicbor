@@ -502,7 +502,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 	return 0;
 }
 
-void MINICBOR(finish)(minicbor_reader_t *Reader) {
+void MINICBOR(reader_finish)(minicbor_reader_t *Reader) {
 	Reader->State = MCS_FINISHED;
 }
 

@@ -59,7 +59,7 @@ static inline uint64_t MINICBOR(read64)(unsigned char *Bytes) {
 int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsigned Available) {
 	unsigned char *Buffer = Reader->Buffer;
 	Reader->Position += Available;
-	while (Available) switch (State) {
+	while (Available) switch (Reader->State) {
 	case MCS_DEFAULT: {
 		unsigned char Byte = *Bytes++;
 		--Available;
@@ -109,7 +109,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		case 0x98 ... 0x9B:
 			Reader->Width = Reader->Required = 1 << (Byte - 0x98);
-			State = MCS_ARRAY_SIZE;
+			Reader->State = MCS_ARRAY_SIZE;
 			break;
 		case 0x9F:
 			ARRAY_FN(Reader->UserData, -1);
@@ -129,7 +129,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		case 0xD8 ... 0xDB:
 			Reader->Width = Reader->Required = 1 << (Byte - 0xD8);
-			State = MCS_TAG;
+			Reader->State = MCS_TAG;
 			break;
 		case 0xE0 ... 0xF7:
 			SIMPLE_FN(Reader->UserData, Byte - 0xE0);

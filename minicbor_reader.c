@@ -162,8 +162,8 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			case 4: Number = MINICBOR(read32)(Buffer); break;
 			case 8: Number = MINICBOR(read64)(Buffer); break;
 			}
-			POSITIVE_FN(Reader->UserData, Number);
 			State = MCS_DEFAULT;
+			POSITIVE_FN(Reader->UserData, Number);
 		} else {
 			Reader->Required = Required;
 		}
@@ -183,8 +183,8 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			case 4: Number = MINICBOR(read32)(Buffer); break;
 			case 8: Number = MINICBOR(read64)(Buffer); break;
 			}
-			NEGATIVE_FN(Reader->UserData, Number);
 			State = MCS_DEFAULT;
+			NEGATIVE_FN(Reader->UserData, Number);
 		} else {
 			Reader->Required = Required;
 		}
@@ -204,13 +204,13 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			case 4: Size = MINICBOR(read32)(Buffer); break;
 			case 8: Size = MINICBOR(read64)(Buffer); break;
 			}
-			BYTES_FN(Reader->UserData, Size);
 			if (Size) {
 				Reader->Required = Size;
 				State = MCS_BYTES;
 			} else {
 				State = MCS_DEFAULT;
 			}
+			BYTES_FN(Reader->UserData, Size);
 		} else {
 			Reader->Required = Required;
 		}
@@ -223,8 +223,8 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			Reader->Required = Required - Available;
 			Available = 0;
 		} else {
-			BYTES_PIECE_FN(Reader->UserData, Bytes, Required, 1);
 			State = MCS_DEFAULT;
+			BYTES_PIECE_FN(Reader->UserData, Bytes, Required, 1);
 			Available -= Required;
 			Bytes += Required;
 		}
@@ -243,12 +243,12 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			State = MCS_BYTES_CHUNK_SIZE;
 			break;
 		case 0xFF:
-			BYTES_PIECE_FN(Reader->UserData, Bytes, 0, 1);
 			State = MCS_DEFAULT;
+			BYTES_PIECE_FN(Reader->UserData, Bytes, 0, 1);
 			break;
 		default:
-			ERROR_FN(Reader->UserData, Reader->Position - Available, "Invalid content in indefinite bytestring");
 			State = MCS_INVALID;
+			ERROR_FN(Reader->UserData, Reader->Position - Available, "Invalid content in indefinite bytestring");
 			break;
 		}
 		break;
@@ -281,8 +281,8 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			Reader->Required = Required - Available;
 			Available = 0;
 		} else {
-			BYTES_PIECE_FN(Reader->UserData, Bytes, Required, 0);
 			State = MCS_BYTES_INDEF;
+			BYTES_PIECE_FN(Reader->UserData, Bytes, Required, 0);
 			Available -= Required;
 			Bytes += Required;
 		}
@@ -302,13 +302,13 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			case 4: Size = MINICBOR(read32)(Buffer); break;
 			case 8: Size = MINICBOR(read64)(Buffer); break;
 			}
-			STRING_FN(Reader->UserData, Size);
 			if (Size) {
 				Reader->Required = Size;
 				State = MCS_STRING;
 			} else {
 				State = MCS_DEFAULT;
 			}
+			STRING_FN(Reader->UserData, Size);
 		} else {
 			Reader->Required = Required;
 		}
@@ -321,8 +321,8 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			Reader->Required = Required - Available;
 			Available = 0;
 		} else {
-			STRING_PIECE_FN(Reader->UserData, Bytes, Required, 1);
 			State = MCS_DEFAULT;
+			STRING_PIECE_FN(Reader->UserData, Bytes, Required, 1);
 			Available -= Required;
 			Bytes += Required;
 		}
@@ -341,12 +341,12 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			State = MCS_STRING_CHUNK_SIZE;
 			break;
 		case 0xFF:
-			STRING_PIECE_FN(Reader->UserData, Bytes, 0, 1);
 			State = MCS_DEFAULT;
+			STRING_PIECE_FN(Reader->UserData, Bytes, 0, 1);
 			break;
 		default:
-			ERROR_FN(Reader->UserData, Reader->Position - Available, "Invalid content in indefinite string");
 			State = MCS_INVALID;
+			ERROR_FN(Reader->UserData, Reader->Position - Available, "Invalid content in indefinite string");
 			break;
 		}
 		break;
@@ -379,8 +379,8 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			Reader->Required = Required - Available;
 			Available = 0;
 		} else {
-			STRING_PIECE_FN(Reader->UserData, Bytes, Required, 0);
 			State = MCS_STRING_INDEF;
+			STRING_PIECE_FN(Reader->UserData, Bytes, Required, 0);
 			Available -= Required;
 			Bytes += Required;
 		}
@@ -400,9 +400,9 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			case 4: Size = MINICBOR(read32)(Buffer); break;
 			case 8: Size = MINICBOR(read64)(Buffer); break;
 			}
-			ARRAY_FN(Reader->UserData, Size);
 			Reader->Required = Size;
 			State = MCS_DEFAULT;
+			ARRAY_FN(Reader->UserData, Size);
 		} else {
 			Reader->Required = Required;
 		}
@@ -422,9 +422,9 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			case 4: Size = MINICBOR(read32)(Buffer); break;
 			case 8: Size = MINICBOR(read64)(Buffer); break;
 			}
-			MAP_FN(Reader->UserData, Size);
 			Reader->Required = Size;
 			State = MCS_DEFAULT;
+			MAP_FN(Reader->UserData, Size);
 		} else {
 			Reader->Required = Required;
 		}
@@ -444,8 +444,8 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			case 4: Tag = MINICBOR(read32)(Buffer); break;
 			case 8: Tag = MINICBOR(read64)(Buffer); break;
 			}
-			TAG_FN(Reader->UserData, Tag);
 			State = MCS_DEFAULT;
+			TAG_FN(Reader->UserData, Tag);
 		} else {
 			Reader->Required = Required;
 		}
@@ -454,8 +454,8 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 	case MCS_SIMPLE: {
 		int Value = *Bytes++;
 		--Available;
-		SIMPLE_FN(Reader->UserData, Value);
 		State = MCS_DEFAULT;
+		SIMPLE_FN(Reader->UserData, Value);
 		break;
 	}
 	case MCS_FLOAT: {
@@ -484,8 +484,8 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			case 4: Number = *(float *)Buffer; break;
 			case 8: Number = *(double *)Buffer; break;
 			}
-			FLOAT_FN(Reader->UserData, Number);
 			State = MCS_DEFAULT;
+			FLOAT_FN(Reader->UserData, Number);
 		} else {
 			Reader->Required = Required;
 		}

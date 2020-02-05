@@ -40,19 +40,19 @@ static inline uint64_t MINICBOR(read64)(unsigned char *Bytes) {
 
 #else
 
-#define POSITIVE_FN Reader->PositiveFn
-#define NEGATIVE_FN Reader->NegativeFn
-#define BYTES_FN Reader->BytesFn
-#define BYTES_PIECE_FN Reader->BytesPieceFn
-#define STRING_FN Reader->StringFn
-#define STRING_PIECE_FN Reader->StringPieceFn
-#define ARRAY_FN Reader->ArrayFn
-#define MAP_FN Reader->MapFn
-#define TAG_FN Reader->TagFn
-#define SIMPLE_FN Reader->SimpleFn
-#define FLOAT_FN Reader->FloatFn
-#define BREAK_FN Reader->BreakFn
-#define ERROR_FN Reader->ErrorFn
+#define POSITIVE_FN Reader->Callbacks->PositiveFn
+#define NEGATIVE_FN Reader->Callbacks->NegativeFn
+#define BYTES_FN Reader->Callbacks->BytesFn
+#define BYTES_PIECE_FN Reader->Callbacks->BytesPieceFn
+#define STRING_FN Reader->Callbacks->StringFn
+#define STRING_PIECE_FN Reader->Callbacks->StringPieceFn
+#define ARRAY_FN Reader->Callbacks->ArrayFn
+#define MAP_FN Reader->Callbacks->MapFn
+#define TAG_FN Reader->Callbacks->TagFn
+#define SIMPLE_FN Reader->Callbacks->SimpleFn
+#define FLOAT_FN Reader->Callbacks->FloatFn
+#define BREAK_FN Reader->Callbacks->BreakFn
+#define ERROR_FN Reader->Callbacks->ErrorFn
 
 #endif
 

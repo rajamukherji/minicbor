@@ -200,19 +200,9 @@ void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, float_fn)(MINICBOR(readdata_t) Use
 void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, break_fn)(MINICBOR(readdata_t) UserData);
 void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, error_fn)(MINICBOR(readdata_t) UserData, int Position, const char *Message);
 
-#endif
+#else
 
-/**
- * A reader for a CBOR stream.
- * Must be initialized with :c:func:`minicbor_reader_init()` before use (and reuse).
- */
-typedef struct minicbor_reader_t {
-	/**
-	 * Passed as the first argument to each callback.
-	 */
-	MINICBOR(readdata_t) UserData;
-
-#ifndef MINICBOR_READ_FN_PREFIX
+typedef struct {
 	/**
 	 * Called when a positive integer is encountered.
 	 */
@@ -290,6 +280,22 @@ typedef struct minicbor_reader_t {
 	 * This puts the reader in an invalid state, any further calls will simply trigger another call :code:`ErrorFn()`;
 	 */
 	void (*ErrorFn)(MINICBOR(readdata_t) UserData, int Position, const char *Message);
+} MINICBOR(reader_fns_t);
+
+#endif
+
+/**
+ * A reader for a CBOR stream.
+ * Must be initialized with :c:func:`minicbor_reader_init()` before use (and reuse).
+ */
+typedef struct minicbor_reader_t {
+	/**
+	 * Passed as the first argument to each callback.
+	 */
+	MINICBOR(readdata_t) UserData;
+
+#ifndef MINICBOR_READ_FN_PREFIX
+	MINICBOR(reader_fns_t) *Callbacks;
 #endif
 
 	unsigned char Buffer[8];

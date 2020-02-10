@@ -492,7 +492,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 	}
 	case MCS_INVALID:
 		ERROR_FN(Reader->UserData, Reader->Position - Available, "Reader in invalid state");
-		break;
+		return 1;
 	case MCS_FINISHED:
 		Reader->Required = Available;
 		return 1;

@@ -284,21 +284,31 @@ typedef struct {
 
 #endif
 
+typedef union {
+	unsigned char Bytes[8];
+	uint16_t Int16;
+	uint32_t Int32;
+	uint64_t Int64;
+	float Float;
+	double Double;
+} minicbor_buffer_t;
+
 /**
  * A reader for a CBOR stream.
  * Must be initialized with :c:func:`minicbor_reader_init()` before use (and reuse).
  */
 typedef struct minicbor_reader_t {
-	/**
-	 * Passed as the first argument to each callback.
-	 */
-	MINICBOR(readdata_t) UserData;
+	minicbor_buffer_t Buffer[1];
 
 #ifndef MINICBOR_READ_FN_PREFIX
 	MINICBOR(reader_fns_t) *Callbacks;
 #endif
 
-	unsigned char Buffer[8];
+	/**
+	 * Passed as the first argument to each callback.
+	 */
+	MINICBOR(readdata_t) UserData;
+
 	int Position, Width, Required;
 	minicbor_state_t State;
 } minicbor_reader_t;

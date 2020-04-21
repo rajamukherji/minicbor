@@ -1,62 +1,64 @@
 from pygments.lexer import RegexLexer, words, include
 from pygments.token import *
+from pygments.style import Style
+from pygments.token import Keyword, Name, Comment, String, Error, Number, Operator, Punctuation, Generic, Text
 from sphinxcontrib.domaintools import custom_domain
 import re
 
 __all__ = ['MinilangLexer']
 
 class MinilangLexer(RegexLexer):
-	name = 'Minilang'
-	aliases = ['minilang']
-	filenames = ['*.mini']
-	
-	tokens = {
-		'root': [
-			(words((
-				"if", "then", "elseif", "else", "end", "loop",
-				"while", "until", "exit", "next", "for", "all",
-				"in", "is", "fun", "return", "suspend", "ret",
-				"susp", "with", "do", "on", "nil", "and", "or",
-				"not", "old", "def", "var", "to"
-			), suffix = r'\b'), Keyword),
-			(r'-?[0-9]+(\.[0-9]*)?((e|E)-?[0-9]+)?', Number),
-			(r'-?\.[0-9]+((e|E)-?[0-9]+)?', Number),
-			('\"', String, 'string'),
-			('\'', String, 'string2'),
-			('\(', Operator, 'brackets'),
-			('\{', Operator, 'braces'),
-			(r':[A-Za-z_]+', Name.Function),
-			(r'::[!@#$%^&*+=|\\~`/?<>.-]+', Name.Function),
-			(r'--.*\n', Comment),
-			(r'\s+', Text),
-			(r'[A-Za-z_][A-Za-z0-9_]*', Text),
-			(':=', Operator),
-			(',', Operator),
-			(';', Operator),
-			(']', Operator),
-			('\[', Operator),
-			(r'[!@#$%^&*+=|\\~`/?<>.-]+', Operator)
-		],
-		'string': [
-			('\"', String, '#pop'),
-			(r'\\.', String.Escape),
-			(r'[^"\\]+', String)
-		],
-		'string2': [
-			('\'', String, '#pop'),
-			(r'\\.', String.Escape),
-			('{', Operator, 'braces'),
-			(r'[^\'\\{]+', String)
-		],
-		'braces': [
-			('}', Operator, '#pop'),
-			include('root')
-		],
-		'brackets': [
-			('\)', Operator, '#pop'),
-			include('root')
-		]
-	}
+    name = 'Minilang'
+    aliases = ['minilang']
+    filenames = ['*.mini']
+    
+    tokens = {
+        'root': [
+            (words((
+                "if", "then", "elseif", "else", "end", "loop",
+                "while", "until", "exit", "next", "for", "all",
+                "in", "is", "fun", "return", "suspend", "ret",
+                "susp", "with", "do", "on", "nil", "and", "or",
+                "not", "old", "def", "var", "to"
+            ), suffix = r'\b'), Keyword),
+            (r'-?[0-9]+(\.[0-9]*)?((e|E)-?[0-9]+)?', Number),
+            (r'-?\.[0-9]+((e|E)-?[0-9]+)?', Number),
+            ('\"', String, 'string'),
+            ('\'', String, 'string2'),
+            ('\(', Operator, 'brackets'),
+            ('\{', Operator, 'braces'),
+            (r':[A-Za-z_]+', Name.Function),
+            (r'::[!@#$%^&*+=|\\~`/?<>.-]+', Name.Function),
+            (r'--.*\n', Comment),
+            (r'\s+', Text),
+            (r'[A-Za-z_][A-Za-z0-9_]*', Text),
+            (':=', Operator),
+            (',', Operator),
+            (';', Operator),
+            (']', Operator),
+            ('\[', Operator),
+            (r'[!@#$%^&*+=|\\~`/?<>.-]+', Operator)
+        ],
+        'string': [
+            ('\"', String, '#pop'),
+            (r'\\.', String.Escape),
+            (r'[^"\\]+', String)
+        ],
+        'string2': [
+            ('\'', String, '#pop'),
+            (r'\\.', String.Escape),
+            ('{', Operator, 'braces'),
+            (r'[^\'\\{]+', String)
+        ],
+        'braces': [
+            ('}', Operator, '#pop'),
+            include('root')
+        ],
+        'brackets': [
+            ('\)', Operator, '#pop'),
+            include('root')
+        ]
+    }
 
 minilangDomain = custom_domain('MinilangDomain',
     name  = 'mini',
@@ -72,3 +74,23 @@ minilangDomain = custom_domain('MinilangDomain',
         )
     )
 )
+
+class MiniStyle(Style):
+    default_style = ""
+    styles = {
+        Keyword: '#3971ED',
+        Name.Function: '#c7254e',
+        Comment: '#a0a1a7',
+        String: '#4E9A06',
+        String.Escape: '#823ff1',
+        Error: '#ff0000',
+        Number: '#75507B',
+        Operator: '#F57900',
+        Punctuation: '#F57900',
+        Generic.Prompt: '#718c00',
+        Generic.Output: '#707070'
+    }
+    
+    @staticmethod
+    def title():
+        return 'mini'

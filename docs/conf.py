@@ -3,7 +3,6 @@ from docutils import nodes
 import re
 from pygments import lexers
 import inspect
-import os
 
 class FoldersDirective(Directive):
 	has_content = True
@@ -87,8 +86,13 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-#html_theme = "sphinx_rtd_theme"
-html_theme = 'bizstyle'
+html_theme = "bootstrap"
+import sphinx_bootstrap_theme
+html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+
+html_theme_options = {
+    'bootswatch_theme': "united"
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -97,7 +101,7 @@ html_static_path = ['_static']
 
 master_doc = 'index'
 
-pygments_style = 'autumn'
+pygments_style = "minilang.MiniStyle"
 
 rst_prolog = """
 .. role:: mini(code)
@@ -107,14 +111,18 @@ rst_prolog = """
 .. role:: html(code)
    :language: html
    :class: highlight
+
+.. role:: c(code)
+   :language: c
+   :class: highlight
 """
 
 def setup(sphinx):
 	import sys, os
 	sys.path.insert(0, os.path.abspath('./_util'))
 	from minilang import MinilangLexer, minilangDomain
-	sphinx.add_lexer("mini", MinilangLexer())
+	sphinx.add_lexer("mini", MinilangLexer)
 	lexers.LEXERS['mini'] = ('minilang', 'Minilang', ('mini',), ('*.mini', '*.rabs'), ('text/x-mini',))
 	#sphinx.add_domain(minilangDomain) 
 	sphinx.add_directive('folders', FoldersDirective)
-	sphinx.add_stylesheet('css/custom.css')
+	sphinx.add_css_file('css/custom.css')

@@ -1,6 +1,38 @@
 Reading CBOR
 ============
 
+Overview
+--------
+
+.. code-block:: c
+   
+   #include <minicbor.h>
+   
+   static minicbor_reader_fns Callbacks = {
+      .PositiveFn = ...,
+      .NegativeFn = ...,
+      ...
+      .ErrorFn = ...
+   };
+   
+   void example_read() {
+      minicbor_reader_t Reader;
+      Reader.Callbacks = Callbacks;
+      Reader.UserData = ...;
+      
+      // Initialize Reader
+      minicbor_reader_init(&Reader);
+   
+      // Parse each block
+      unsigned char Bytes[256];
+      for (;;) {
+         int Count = read(Stream, Bytes, 256);
+         if (Count <= 0) break;
+         minicbor_read(&Reader, Bytes, Size);
+      }
+   }
+
+
 Defines
 -------
 

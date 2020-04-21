@@ -1,6 +1,57 @@
 Writing CBOR
 ============
 
+Overview
+--------
+
+When an underlying stream type object is available, such as a file handle or an in-memory appendable buffer, simply pass a suitable :c:type:`minicbor_write_fn` to the :c:func:`minicbor_write_*` functions.
+
+.. note::
+
+   The :c:func:`minicbor_write_*` do not write the contents of any bytestring / string values. The contents of these values should be written directly by the user.
+
+.. code-block:: c
+
+   #include <minicbor.h>
+   
+   static void stream_write(stream_type *Stream, unsigned char *Bytes, int Size) {
+      ...
+   }
+   
+   void example_write() {
+      stream_type *Stream = ...;
+      minicbor_write_indef_array(Stream, stream, write);
+      minicbor_write_string(Stream, stream_write, strlen("Hello world!"));
+      stream_write(Stream, "Hello world!", strlen("Hello world!"));
+      minicbor_write_integer(Stream, stream_write, 100);
+      minicbor_write_float4(Stream, stream_write, 1.2);
+      minicbor_write_break(Stream, stream_write);
+   }
+
+Presizing a CBOR output before writing
+......................................
+
+If a contiguous output buffer is required, then the required CBOR buffer size can be calculated by calling the :c:func:`minicbor_write_*` functions twice.
+
+#. For the first pass, use a :c:type:`minicbor_write_fn` that takes a pointer to a :c:type:`size_t` and simply increments the value with the value of :c:data:`Size`. For example:
+
+   .. code-block:: c
+
+      static void calculate_size(size_t *Required, unsigned char *Bytes, int Size) {
+         *Required += Size;
+      }
+   
+   The user is responsible for incrementing :c:data:`Total` with the content sizes of any bytestrings or strings.
+
+#. Then allocate a buffer (e.g. using :c:func:`malloc`) and use a :c:type:`minicbor_write_fn` that actual writes the data to the end of the buffer. For example:
+
+   .. code-block:: c
+   
+      static void write_bytes(unsigned char **Tail, unsigned char *Bytes, int Size) {
+         memcpy(*Tail, Bytes, Size);
+         *Tail += Size;
+      }
+
 Defines
 -------
 
@@ -23,7 +74,7 @@ Defines
 Types
 -----
 
-.. c:type:: int (*minicbor_write_fn)(void *UserData, const void *Bytes, unsigned Size)
+.. c:type:: void (*minicbor_write_fn)(void *UserData, const void *Bytes, unsigned Size)
 
    Minicbor write callback type.
 

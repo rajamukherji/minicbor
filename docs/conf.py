@@ -86,12 +86,13 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "bootstrap"
-import sphinx_bootstrap_theme
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-
+html_theme = "pydata_sphinx_theme"
 html_theme_options = {
-    'bootswatch_theme': "united"
+	"collapse_navigation": True,
+	"page_sidebar_items": []
+}
+html_sidebars = {
+    "**": ["search-field", "page-toc", "sidebar-nav-bs"]
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

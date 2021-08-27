@@ -58,11 +58,13 @@ Types
 .. c:type:: struct minicbor_reader_t
 
    A reader for a CBOR stream.
-   Must be initialized with :c:func:`minicbor_reader_init()` before use (and reuse).
+   Must be initialized with :c:func:`minicbor_reader_init()` before each use.
 
-   .. c:member:: void *UserData
+   .. c:member:: minicbor_reader_fns *Callbacks
    
-      Passed as the first argument to each callback.   
+   .. c:member:: minicbor_readdata_t UserData
+
+.. c:type:: struct minicbor_reader_fns   
    
    .. c:member:: void (*PositiveFn)(void *UserData, uint64_t Number)
 
@@ -137,6 +139,16 @@ Functions
    Must be called before any call to :c:func:`minicbor_read()`.
    A :c:type:`minicbor_reader_t` can be reused by calling this function again.
 
-.. c:function:: void minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Size)
+.. c:function:: int minicbor_read(minicbor_reader_t *Reader, unsigned char *Bytes, unsigned Size)
 
    Parse some CBOR bytes and call the appropriate callbacks.
+   Returns the 1 if :c:func:`minicbor_reader_finish()` was called within a callback, otherwise returns 0.
+
+.. c:function:: void minicbor_reader_finish(minicbor_reader_t *Reader)
+
+   Set :code:`Reader` state to :code:`MCS_FINISHED`.
+   Must be called from within a reader callback.
+
+.. c:function:: int minicbor_reader_remaining(minicbor_reader_t *Reader)
+
+   Returns the number of bytes remainining to be parsed by the reader.

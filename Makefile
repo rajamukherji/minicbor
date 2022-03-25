@@ -37,6 +37,7 @@ endif
 
 common_objects = \
 	minicbor_reader.o \
+	minicbor_stream.o \
 	minicbor_writer.o
 
 platform_objects =

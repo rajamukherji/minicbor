@@ -59,6 +59,38 @@ typedef enum {
 	MCS_FINISHED
 } minicbor_state_t;
 
+typedef enum {
+	MCE_WAIT,
+	MCE_POSITIVE,
+	MCE_NEGATIVE,
+	MCE_BYTES,
+	MCE_BYTES_PIECE,
+	MCE_STRING,
+	MCE_STRING_PIECE,
+	MCE_ARRAY,
+	MCE_MAP,
+	MCE_TAG,
+	MCE_SIMPLE,
+	MCE_FLOAT,
+	MCE_BREAK,
+	MCE_ERROR
+} minicbor_event_t;
+
+typedef struct {
+	unsigned char Buffer[8];
+	const unsigned char *Next;
+	union {
+		uint64_t Integer;
+		uint64_t Tag;
+		int Simple;
+		double Real;
+		const unsigned char *Bytes;
+	};
+	uint64_t Size, Required;
+	unsigned Available;
+	minicbor_state_t State;
+} minicbor_stream_t;
+
 #ifdef MINICBOR_READDATA_TYPE
 typedef MINICBOR_READDATA_TYPE MINICBOR(readdata_t);
 #else
@@ -165,21 +197,12 @@ typedef struct {
 
 #endif
 
-typedef union {
-	unsigned char Bytes[8];
-	uint16_t Int16;
-	uint32_t Int32;
-	uint64_t Int64;
-	float Float;
-	double Double;
-} minicbor_buffer_t;
-
 /**
  * A reader for a CBOR stream.
  * Must be initialized with :c:func:`minicbor_reader_init()` before use (and reuse).
  */
 typedef struct minicbor_reader_t {
-	minicbor_buffer_t Buffer[1];
+	unsigned char Buffer[8];
 
 #ifndef MINICBOR_READ_FN_PREFIX
 	MINICBOR(reader_fns) *Callbacks;

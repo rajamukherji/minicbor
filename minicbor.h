@@ -1,6 +1,7 @@
 #ifndef MINICBOR_H
 #define MINICBOR_H
 
+#include <stdlib.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -259,7 +260,7 @@ typedef void *MINICBOR(writedata_t);
  * :param Bytes: Bytes to write.
  * :param Size: Number of bytes.
  */
-typedef void (*minicbor_write_fn)(MINICBOR(writedata_t) UserData, const unsigned char *Bytes, unsigned Size);
+typedef void (*minicbor_write_fn)(MINICBOR(writedata_t) UserData, const unsigned char *Bytes, size_t Size);
 
 #endif
 

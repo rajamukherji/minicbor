@@ -28,7 +28,7 @@ static void MINICBOR(write_number)(MINICBOR_WRITE_PARAMS, uint64_t Absolute, uns
 		MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 1);
 	} else if (Absolute <= 0xFF) {
 		Bytes[0] = Base + 0x18;
-		Bytes[1] = 0xFF;
+		Bytes[1] = Absolute;
 		MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 2);
 	} else if (Absolute <= 0xFFFF) {
 		Bytes[0] = Base + 0x19;

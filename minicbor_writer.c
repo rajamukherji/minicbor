@@ -22,7 +22,11 @@ static inline void MINICBOR(write)(MINICBOR_WRITE_PARAMS, const void *Bytes, siz
 #endif
 
 static void MINICBOR(write_number)(MINICBOR_WRITE_PARAMS, uint64_t Absolute, unsigned char Base) {
+#ifdef MINICBOR_WRITE_BUFFER
+	unsigned char *Bytes = MINICBOR_WRITE_BUFFER(UserData);
+#else
 	unsigned char Bytes[9];
+#endif
 	if (Absolute < 24) {
 		Bytes[0] = Base + Absolute;
 		MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 1);
@@ -102,7 +106,11 @@ void MINICBOR(write_simple)(MINICBOR_WRITE_PARAMS, unsigned char Simple) {
 }
 
 void MINICBOR(write_float2)(MINICBOR_WRITE_PARAMS, double Number) {
+#ifdef MINICBOR_WRITE_BUFFER
+	unsigned char *Bytes = MINICBOR_WRITE_BUFFER(UserData);
+#else
 	unsigned char Bytes[3];
+#endif
 	Bytes[0] = 0xF9;
 	int Inf = isinf(Number);
 	if (Inf < 0) {
@@ -131,7 +139,11 @@ void MINICBOR(write_float2)(MINICBOR_WRITE_PARAMS, double Number) {
 }
 
 void MINICBOR(write_float4)(MINICBOR_WRITE_PARAMS, double Number) {
+#ifdef MINICBOR_WRITE_BUFFER
+	unsigned char *Bytes = MINICBOR_WRITE_BUFFER(UserData);
+#else
 	unsigned char Bytes[5];
+#endif
 	Bytes[0] = 0xFA;
 	*(float *)(Bytes + 1) = Number;
 	for (int I = 3; --I > 0;) {
@@ -143,7 +155,11 @@ void MINICBOR(write_float4)(MINICBOR_WRITE_PARAMS, double Number) {
 }
 
 void MINICBOR(write_float8)(MINICBOR_WRITE_PARAMS, double Number) {
+#ifdef MINICBOR_WRITE_BUFFER
+	unsigned char *Bytes = MINICBOR_WRITE_BUFFER(UserData);
+#else
 	unsigned char Bytes[9];
+#endif
 	Bytes[0] = 0xFB;
 	*(double *)(Bytes + 1) = Number;
 	for (int I = 5; --I > 0;) {

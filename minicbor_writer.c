@@ -70,7 +70,7 @@ void MINICBOR(write_bytes)(MINICBOR_WRITE_PARAMS, unsigned Size) {
 }
 
 void MINICBOR(write_indef_bytes)(MINICBOR_WRITE_PARAMS) {
-	static unsigned char Bytes[] = {0x5F};
+	static const unsigned char Bytes[] = {0x5F};
 	MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 1);
 }
 
@@ -79,7 +79,7 @@ void MINICBOR(write_string)(MINICBOR_WRITE_PARAMS, unsigned Size) {
 }
 
 void MINICBOR(write_indef_string)(MINICBOR_WRITE_PARAMS) {
-	static unsigned char Bytes[] = {0x7F};
+	static const unsigned char Bytes[] = {0x7F};
 	MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 1);
 }
 
@@ -88,7 +88,7 @@ void MINICBOR(write_array)(MINICBOR_WRITE_PARAMS, unsigned Size) {
 }
 
 void MINICBOR(write_indef_array)(MINICBOR_WRITE_PARAMS) {
-	static unsigned char Bytes[] = {0x9F};
+	static const unsigned char Bytes[] = {0x9F};
 	MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 1);
 }
 
@@ -97,7 +97,7 @@ void MINICBOR(write_map)(MINICBOR_WRITE_PARAMS, unsigned Size) {
 }
 
 void MINICBOR(write_indef_map)(MINICBOR_WRITE_PARAMS) {
-	static unsigned char Bytes[] = {0xBF};
+	static const unsigned char Bytes[] = {0xBF};
 	MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 1);
 }
 
@@ -183,7 +183,7 @@ void MINICBOR(write_float8)(MINICBOR_WRITE_PARAMS, double Number) {
 }
 
 void MINICBOR(write_break)(MINICBOR_WRITE_PARAMS) {
-	static unsigned char Bytes[] = {0x5F};
+	static const unsigned char Bytes[] = {0x5F};
 	MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 1);
 }
 

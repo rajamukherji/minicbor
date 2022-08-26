@@ -124,23 +124,40 @@ void MINICBOR(write_simple)(MINICBOR_WRITE_PARAMS, unsigned char Simple) {
 }
 
 void MINICBOR(write_float2)(MINICBOR_WRITE_PARAMS, double Number) {
-	char Bytes[3];
+	unsigned char Bytes[3];
 	Bytes[0] = 0xF9;
-	*(_Float16 *)(Bytes + 1) = Number;
-	for (int I = 1; --I > 0;) {
-		char T = Bytes[I];
-		Bytes[I] = Bytes[3 - I];
-		Bytes[3 - I] = T;
+	int Inf = isinf(Number);
+	if (Inf < 0) {
+		Bytes[1] = 0x00;
+		Bytes[2] = 0xFC;
+	} else if (Inf > 0) {
+		Bytes[1] = 0x00;
+		Bytes[2] = 0x7C;
+	} else if (isnan(Number)) {
+		Bytes[1] = 0x01;
+		Bytes[2] = 0x7C;
+	} else {
+		int Sign = signbit(Number);
+		int Exponent;
+		int Mantissa = (int)(frexp(Number, &Exponent) * 2048) & 1023;
+		Exponent += 15;
+		if (Exponent < 0 || Exponent > 30) {
+			Bytes[1] = 0x00;
+			Bytes[2] = Sign ? 0xFC : 0x7C;
+		} else {
+			Bytes[1] = Mantissa & 255;
+			Bytes[2] = (Mantissa >> 8) | (Exponent << 2) | (Sign << 7);
+		}
 	}
 	MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 3);
 }
 
 void MINICBOR(write_float4)(MINICBOR_WRITE_PARAMS, double Number) {
-	char Bytes[5];
+	unsigned char Bytes[5];
 	Bytes[0] = 0xFA;
 	*(float *)(Bytes + 1) = Number;
 	for (int I = 3; --I > 0;) {
-		char T = Bytes[I];
+		unsigned char T = Bytes[I];
 		Bytes[I] = Bytes[5 - I];
 		Bytes[5 - I] = T;
 	}
@@ -148,11 +165,11 @@ void MINICBOR(write_float4)(MINICBOR_WRITE_PARAMS, double Number) {
 }
 
 void MINICBOR(write_float8)(MINICBOR_WRITE_PARAMS, double Number) {
-	char Bytes[9];
+	unsigned char Bytes[9];
 	Bytes[0] = 0xFB;
 	*(double *)(Bytes + 1) = Number;
 	for (int I = 5; --I > 0;) {
-		char T = Bytes[I];
+		unsigned char T = Bytes[I];
 		Bytes[I] = Bytes[9 - I];
 		Bytes[9 - I] = T;
 	}

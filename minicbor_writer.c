@@ -3,9 +3,9 @@
 
 #ifdef MINICBOR_WRITE_FN
 
-extern void MINICBOR_WRITE_FN(MINICBOR(writedata_t) UserData, const void *Bytes, unsigned Size);
+extern void MINICBOR_WRITE_FN(MINICBOR(writedata_t) UserData, const void *Bytes, size_t Size);
 
-static inline void MINICBOR(write)(MINICBOR_WRITE_PARAMS, const void *Bytes, unsigned Size) {
+static inline void MINICBOR(write)(MINICBOR_WRITE_PARAMS, const void *Bytes, size_t Size) {
 	MINICBOR_WRITE_FN(UserData, Bytes, Size);
 }
 
@@ -13,7 +13,7 @@ static inline void MINICBOR(write)(MINICBOR_WRITE_PARAMS, const void *Bytes, uns
 
 #else
 
-static inline void MINICBOR(write)(MINICBOR_WRITE_PARAMS, const void *Bytes, unsigned Size) {
+static inline void MINICBOR(write)(MINICBOR_WRITE_PARAMS, const void *Bytes, size_t Size) {
 	WriteFn(UserData, Bytes, Size);
 }
 
@@ -28,7 +28,7 @@ static void MINICBOR(write_number)(MINICBOR_WRITE_PARAMS, uint64_t Absolute, uns
 		MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 1);
 	} else if (Absolute <= 0xFF) {
 		Bytes[0] = Base + 0x18;
-		Bytes[1] = Absolute & 0xFF;
+		Bytes[1] = 0xFF;
 		MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 2);
 	} else if (Absolute <= 0xFFFF) {
 		Bytes[0] = Base + 0x19;

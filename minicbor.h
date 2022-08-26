@@ -260,7 +260,7 @@ typedef void *MINICBOR(writedata_t);
  * :param Bytes: Bytes to write.
  * :param Size: Number of bytes.
  */
-typedef void (*minicbor_write_fn)(MINICBOR(writedata_t) UserData, const unsigned char *Bytes, size_t Size);
+typedef void (*minicbor_write_fn)(MINICBOR(writedata_t) UserData, const void *Bytes, size_t Size);
 
 #endif
 
@@ -353,12 +353,10 @@ void MINICBOR(write_float8)(MINICBOR_WRITE_PARAMS, double Number);
  */
 void MINICBOR(write_simple)(MINICBOR_WRITE_PARAMS, unsigned char Simple);
 
-
 /**
  * Write a break (to end an indefinite bytestring, string, array or map).
  */
 void MINICBOR(write_break)(MINICBOR_WRITE_PARAMS);
-
 
 /**
  * Write a tag sequence which will apply to the next value written.

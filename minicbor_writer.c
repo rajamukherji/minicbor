@@ -126,7 +126,12 @@ void MINICBOR(write_simple)(MINICBOR_WRITE_PARAMS, unsigned char Simple) {
 void MINICBOR(write_float2)(MINICBOR_WRITE_PARAMS, double Number) {
 	char Bytes[3];
 	Bytes[0] = 0xF9;
-	// TODO: Implement this!
+	*(_Float16 *)(Bytes + 1) = Number;
+	for (int I = 1; --I > 0;) {
+		char T = Bytes[I];
+		Bytes[I] = Bytes[3 - I];
+		Bytes[3 - I] = T;
+	}
 	MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 3);
 }
 

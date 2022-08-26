@@ -465,20 +465,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			if (!Required) {
 				double Number = 0;
 				switch (Reader->Width) {
-				case 2: {
-					int Half = (Buffer[1] << 8) + Buffer[0];
-					int Exp = (Half >> 10) & 0x1F;
-					int Mant = Half & 0x3FF;
-					if (Exp == 0) {
-						Number = ldexp(Mant, -24);
-					} else if (Exp != 31) {
-						Number = ldexp(Mant + 1024, Exp - 25);
-					} else {
-						Number = Mant ? NAN : INFINITY;
-					}
-					if (Half & 0x8000) Number = -Number;
-					break;
-				}
+				case 2: Number = *(_Float16 *)Buffer; break;
 				case 4: Number = *(float *)Buffer; break;
 				case 8: Number = *(double *)Buffer; break;
 				default: __builtin_unreachable();

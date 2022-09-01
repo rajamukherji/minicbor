@@ -183,7 +183,7 @@ void MINICBOR(write_float8)(MINICBOR_WRITE_PARAMS, double Number) {
 }
 
 void MINICBOR(write_break)(MINICBOR_WRITE_PARAMS) {
-	static const unsigned char Bytes[] = {0x5F};
+	static const unsigned char Bytes[] = {0xFF};
 	MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 1);
 }
 

@@ -3,10 +3,10 @@
 
 #ifdef MINICBOR_WRITE_FN
 
-extern void MINICBOR_WRITE_FN(MINICBOR(writedata_t) UserData, const void *Bytes, size_t Size);
+extern int MINICBOR_WRITE_FN(MINICBOR(writedata_t) UserData, const void *Bytes, size_t Size);
 
-static inline void MINICBOR(write)(MINICBOR_WRITE_PARAMS, const void *Bytes, size_t Size) {
-	MINICBOR_WRITE_FN(UserData, Bytes, Size);
+static inline int MINICBOR(write)(MINICBOR_WRITE_PARAMS, const void *Bytes, size_t Size) {
+	return MINICBOR_WRITE_FN(UserData, Bytes, Size);
 }
 
 #define MINICBOR_WRITE_ARGS UserData

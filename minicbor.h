@@ -260,108 +260,108 @@ typedef void *MINICBOR(writedata_t);
  * :param Bytes: Bytes to write.
  * :param Size: Number of bytes.
  */
-typedef int (*minicbor_write_fn)(MINICBOR(writedata_t) UserData, const void *Bytes, size_t Size);
+typedef int (*minicbor_write_fn)(MINICBOR(writedata_t) UserData, const void *Bytes, size_t Size) __attribute__((warn_unused_result));
 
 #endif
 
 /**
  * Write a signed integer. Will automatically write a positive or negative integer with the smallest possible width.
  */
-int MINICBOR(write_integer)(MINICBOR_WRITE_PARAMS, int64_t Number);
+int MINICBOR(write_integer)(MINICBOR_WRITE_PARAMS, int64_t Number) __attribute__((warn_unused_result));
 
 /**
  * Write a positive integer with the smallest width.
  */
-int MINICBOR(write_positive)(MINICBOR_WRITE_PARAMS, uint64_t Number);
+int MINICBOR(write_positive)(MINICBOR_WRITE_PARAMS, uint64_t Number) __attribute__((warn_unused_result));
 
 /**
  * Write a negative integer with the smallest width. Here `Number` is the exact value to write into the stream.
  * This means if :code:`X` is the desired negative value to write, then :code:`Number` should be :code:`1 - X` or :code:`~X` (the one's complement).
  * This is to allow the full range of negative numbers to be written.
  */
-int MINICBOR(write_negative)(MINICBOR_WRITE_PARAMS, uint64_t Number);
+int MINICBOR(write_negative)(MINICBOR_WRITE_PARAMS, uint64_t Number) __attribute__((warn_unused_result));
 
 /**
  * Write the leading bytes of a definite bytestring with :code:`Size` bytes.
  * The actual bytes should be written directly by the application.
  */
-int MINICBOR(write_bytes)(MINICBOR_WRITE_PARAMS, unsigned Size);
+int MINICBOR(write_bytes)(MINICBOR_WRITE_PARAMS, unsigned Size) __attribute__((warn_unused_result));
 
 /**
  * Write the leading bytes of an indefinite bytestring.
  * The chunks should be written using :c:func:`minicbor_write_bytes()` followed by the bytes themselves.
  * Finally, :c:func:`minicbor_write_break()` should be used to end the indefinite bytestring.
  */
-int MINICBOR(write_indef_bytes)(MINICBOR_WRITE_PARAMS);
+int MINICBOR(write_indef_bytes)(MINICBOR_WRITE_PARAMS) __attribute__((warn_unused_result));
 
 /**
  * Write the leading bytes of a definite string with :code:`Size` bytes.
  * The actual string should be written directly by the application.
  */
-int MINICBOR(write_string)(MINICBOR_WRITE_PARAMS, unsigned Size);
+int MINICBOR(write_string)(MINICBOR_WRITE_PARAMS, unsigned Size) __attribute__((warn_unused_result));
 
 /**
  * Write the leading bytes of an indefinite string.
  * The chunks should be written using :c:func:`minicbor_write_string()` followed by the strings themselves.
  * Finally, :c:func:`minicbor_write_break()` should be used to end the indefinite string.
  */
-int MINICBOR(write_indef_string)(MINICBOR_WRITE_PARAMS);
+int MINICBOR(write_indef_string)(MINICBOR_WRITE_PARAMS) __attribute__((warn_unused_result));
 
 /**
  * Write the leading bytes of a definite array with :code:`Size` elements.
  * The elements themselves should be written with the appropriate :code:`minicbor_write_*()` functions.
  */
-int MINICBOR(write_array)(MINICBOR_WRITE_PARAMS, unsigned Size);
+int MINICBOR(write_array)(MINICBOR_WRITE_PARAMS, unsigned Size) __attribute__((warn_unused_result));
 
 /**
  * Write the leading bytes of an indefinite array.
  * The elements themselves should be written with the appropriate :code:`minicbor_write_*()` functions.
  * Finally, :c:func:`minicbor_write_break()` should be used to ende the indefinite array.
  */
-int MINICBOR(write_indef_array)(MINICBOR_WRITE_PARAMS);
+int MINICBOR(write_indef_array)(MINICBOR_WRITE_PARAMS) __attribute__((warn_unused_result));
 
 /**
  * Write the leading bytes of a definite map with :code:`Size` key-value pairs.
  * The keys and values themselves should be written with the appropriate :code:`minicbor_write_*()` functions.
  */
-int MINICBOR(write_map)(MINICBOR_WRITE_PARAMS, unsigned Size);
+int MINICBOR(write_map)(MINICBOR_WRITE_PARAMS, unsigned Size) __attribute__((warn_unused_result));
 
 /**
  * Write the leading bytes of an indefinite map.
  * The keys and values themselves should be written with the appropriate :code:`minicbor_write_*()` functions.
  * Finally, :c:func:`minicbor_write_break()` should be used to ende the indefinite map.
  */
-int MINICBOR(write_indef_map)(MINICBOR_WRITE_PARAMS);
+int MINICBOR(write_indef_map)(MINICBOR_WRITE_PARAMS) __attribute__((warn_unused_result));
 
 /**
  * Write a floating point number in half precision.
  */
-int MINICBOR(write_float2)(MINICBOR_WRITE_PARAMS, double Number);
+int MINICBOR(write_float2)(MINICBOR_WRITE_PARAMS, double Number) __attribute__((warn_unused_result));
 
 /**
  * Write a floating point number in single precision.
  */
-int MINICBOR(write_float4)(MINICBOR_WRITE_PARAMS, double Number);
+int MINICBOR(write_float4)(MINICBOR_WRITE_PARAMS, double Number) __attribute__((warn_unused_result));
 
 /**
  * Write a floating point number in double precision.
  */
-int MINICBOR(write_float8)(MINICBOR_WRITE_PARAMS, double Number);
+int MINICBOR(write_float8)(MINICBOR_WRITE_PARAMS, double Number) __attribute__((warn_unused_result));
 
 /**
  * Write a simple value.
  */
-int MINICBOR(write_simple)(MINICBOR_WRITE_PARAMS, unsigned char Simple);
+int MINICBOR(write_simple)(MINICBOR_WRITE_PARAMS, unsigned char Simple) __attribute__((warn_unused_result));
 
 /**
  * Write a break (to end an indefinite bytestring, string, array or map).
  */
-int MINICBOR(write_break)(MINICBOR_WRITE_PARAMS);
+int MINICBOR(write_break)(MINICBOR_WRITE_PARAMS) __attribute__((warn_unused_result));
 
 /**
  * Write a tag sequence which will apply to the next value written.
  */
-int MINICBOR(write_tag)(MINICBOR_WRITE_PARAMS, uint64_t Tag);
+int MINICBOR(write_tag)(MINICBOR_WRITE_PARAMS, uint64_t Tag) __attribute__((warn_unused_result));
 
 #ifdef __cplusplus
 }

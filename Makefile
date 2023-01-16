@@ -20,8 +20,8 @@ ifdef DEBUG
 	CFLAGS += -g -DGC_DEBUG -DDEBUG
 	LDFLAGS += -g
 else
-	CFLAGS += -O3
-	LDFLAGS +=
+	CFLAGS += -O3 -g
+	LDFLAGS += -g
 endif
 
 ifdef READ_FN_PREFIX

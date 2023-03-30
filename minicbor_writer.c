@@ -65,7 +65,7 @@ int MINICBOR(write_negative)(MINICBOR_WRITE_PARAMS, uint64_t Number) {
 	return MINICBOR(write_number)(MINICBOR_WRITE_ARGS, Number, 0x20);
 }
 
-int MINICBOR(write_bytes)(MINICBOR_WRITE_PARAMS, unsigned Size) {
+int MINICBOR(write_bytes)(MINICBOR_WRITE_PARAMS, size_t Size) {
 	return MINICBOR(write_number)(MINICBOR_WRITE_ARGS, Size, 0x40);
 }
 
@@ -74,7 +74,7 @@ int MINICBOR(write_indef_bytes)(MINICBOR_WRITE_PARAMS) {
 	return MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 1);
 }
 
-int MINICBOR(write_string)(MINICBOR_WRITE_PARAMS, unsigned Size) {
+int MINICBOR(write_string)(MINICBOR_WRITE_PARAMS, size_t Size) {
 	return MINICBOR(write_number)(MINICBOR_WRITE_ARGS, Size, 0x60);
 }
 
@@ -83,7 +83,7 @@ int MINICBOR(write_indef_string)(MINICBOR_WRITE_PARAMS) {
 	return MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 1);
 }
 
-int MINICBOR(write_array)(MINICBOR_WRITE_PARAMS, unsigned Size) {
+int MINICBOR(write_array)(MINICBOR_WRITE_PARAMS, size_t Size) {
 	return MINICBOR(write_number)(MINICBOR_WRITE_ARGS, Size, 0x80);
 }
 
@@ -92,7 +92,7 @@ int MINICBOR(write_indef_array)(MINICBOR_WRITE_PARAMS) {
 	return MINICBOR(write)(MINICBOR_WRITE_ARGS, Bytes, 1);
 }
 
-int MINICBOR(write_map)(MINICBOR_WRITE_PARAMS, unsigned Size) {
+int MINICBOR(write_map)(MINICBOR_WRITE_PARAMS, size_t Size) {
 	return MINICBOR(write_number)(MINICBOR_WRITE_ARGS, Size, 0xA0);
 }
 

@@ -1,14 +1,11 @@
 #include "minicbor.h"
 #include <math.h>
+#include <stdint.h>
 
 #define EVENT(TYPE) \
 	Stream->Available = Available; \
 	Stream->Next = Next; \
 	return MCE_ ## TYPE
-
-void minicbor_stream_init(minicbor_stream_t *Stream) {
-	Stream->State = MCS_DEFAULT;
-}
 
 minicbor_event_t MINICBOR(next)(minicbor_stream_t *Stream) {
 	unsigned char *Buffer = Stream->Buffer;
@@ -46,7 +43,7 @@ minicbor_event_t MINICBOR(next)(minicbor_stream_t *Stream) {
 				break;
 			case 0x5F:
 				Stream->State = MCS_BYTES_INDEF;
-				Stream->Required = UINT64_MAX;
+				Stream->Required = SIZE_MAX;
 				EVENT(BYTES);
 			case 0x60 ... 0x77:
 				Stream->Required = Byte - 0x60;
@@ -58,7 +55,7 @@ minicbor_event_t MINICBOR(next)(minicbor_stream_t *Stream) {
 				break;
 			case 0x7F:
 				Stream->State = MCS_STRING_INDEF;
-				Stream->Required = UINT64_MAX;
+				Stream->Required = SIZE_MAX;
 				EVENT(STRING);
 			case 0x80 ... 0x97:
 				Stream->Required = Byte = 0x80;
@@ -68,7 +65,7 @@ minicbor_event_t MINICBOR(next)(minicbor_stream_t *Stream) {
 				Stream->State = MCS_ARRAY_SIZE;
 				break;
 			case 0x9F:
-				Stream->Required = UINT64_MAX;
+				Stream->Required = SIZE_MAX;
 				EVENT(ARRAY);
 			case 0xA0 ... 0xB7:
 				Stream->Required = Byte - 0xA0;
@@ -78,7 +75,7 @@ minicbor_event_t MINICBOR(next)(minicbor_stream_t *Stream) {
 				Stream->State = MCS_MAP_SIZE;
 				break;
 			case 0xBF:
-				Stream->Required = UINT64_MAX;
+				Stream->Required = SIZE_MAX;
 				EVENT(MAP);
 			case 0xC0 ... 0xD7:
 				Stream->Tag = Byte - 0xC0;

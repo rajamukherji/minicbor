@@ -1,11 +1,6 @@
 #include "minicbor.h"
 #include <math.h>
 
-void MINICBOR(reader_init)(minicbor_reader_t *Reader) {
-	Reader->Position = 0;
-	Reader->State = MCS_DEFAULT;
-}
-
 #ifdef MINICBOR_READ_FN_PREFIX
 
 #define POSITIVE_FN MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, positive_fn)
@@ -40,7 +35,7 @@ void MINICBOR(reader_init)(minicbor_reader_t *Reader) {
 
 #endif
 
-int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsigned Available) {
+int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, size_t Available) {
 	unsigned char *Buffer = Reader->Buffer;
 	Reader->Position += Available;
 	for (;;) {
@@ -79,7 +74,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 				break;
 			case 0x5F:
 				Reader->State = MCS_BYTES_INDEF;
-				BYTES_FN(Reader->UserData, -1);
+				BYTES_FN(Reader->UserData, SIZE_MAX);
 				break;
 			case 0x60 ... 0x77:
 				Reader->Required = Byte - 0x60;
@@ -92,7 +87,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 				break;
 			case 0x7F:
 				Reader->State = MCS_STRING_INDEF;
-				STRING_FN(Reader->UserData, -1);
+				STRING_FN(Reader->UserData, SIZE_MAX);
 				break;
 			case 0x80 ... 0x97:
 				ARRAY_FN(Reader->UserData, Byte - 0x80);
@@ -102,7 +97,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 				Reader->State = MCS_ARRAY_SIZE;
 				break;
 			case 0x9F:
-				ARRAY_FN(Reader->UserData, -1);
+				ARRAY_FN(Reader->UserData, SIZE_MAX);
 				break;
 			case 0xA0 ... 0xB7:
 				MAP_FN(Reader->UserData, Byte - 0xA0);
@@ -112,7 +107,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 				Reader->State = MCS_MAP_SIZE;
 				break;
 			case 0xBF:
-				MAP_FN(Reader->UserData, -1);
+				MAP_FN(Reader->UserData, SIZE_MAX);
 				break;
 			case 0xC0 ... 0xD7:
 				TAG_FN(Reader->UserData, Byte - 0xC0);
@@ -138,7 +133,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		}
 		case MCS_POSITIVE: {
-			int Required = Reader->Required;
+			size_t Required = Reader->Required;
 			while (Available && Required) {
 				Buffer[--Required] = *Bytes++;
 				--Available;
@@ -160,7 +155,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		}
 		case MCS_NEGATIVE: {
-			int Required = Reader->Required;
+			size_t Required = Reader->Required;
 			while (Available && Required) {
 				Buffer[--Required] = *Bytes++;
 				--Available;
@@ -182,13 +177,13 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		}
 		case MCS_BYTES_SIZE: {
-			int Required = Reader->Required;
+			size_t Required = Reader->Required;
 			while (Available && Required) {
 				Buffer[--Required] = *Bytes++;
 				--Available;
 			}
 			if (!Required) {
-				int Size = 0;
+				size_t Size = 0;
 				switch (Reader->Width) {
 				case 1: Size = *(uint8_t *)Buffer; break;
 				case 2: Size = *(uint16_t *)Buffer; break;
@@ -209,7 +204,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		}
 		case MCS_BYTES: {
-			int Required = Reader->Required;
+			size_t Required = Reader->Required;
 			if (Available < Required) {
 				BYTES_PIECE_FN(Reader->UserData, Bytes, Available, 0);
 				Reader->Required = Required - Available;
@@ -246,13 +241,13 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		}
 		case MCS_BYTES_CHUNK_SIZE: {
-			int Required = Reader->Required;
+			size_t Required = Reader->Required;
 			while (Available && Required) {
 				Buffer[--Required] = *Bytes++;
 				--Available;
 			}
 			if (!Required) {
-				int Size = 0;
+				size_t Size = 0;
 				switch (Reader->Width) {
 				case 1: Size = *(uint8_t *)Buffer; break;
 				case 2: Size = *(uint16_t *)Buffer; break;
@@ -268,7 +263,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		}
 		case MCS_BYTES_CHUNK: {
-			int Required = Reader->Required;
+			size_t Required = Reader->Required;
 			if (Available < Required) {
 				BYTES_PIECE_FN(Reader->UserData, Bytes, Available, 0);
 				Reader->Required = Required - Available;
@@ -282,13 +277,13 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		}
 		case MCS_STRING_SIZE: {
-			int Required = Reader->Required;
+			size_t Required = Reader->Required;
 			while (Available && Required) {
 				Buffer[--Required] = *Bytes++;
 				--Available;
 			}
 			if (!Required) {
-				int Size = 0;
+				size_t Size = 0;
 				switch (Reader->Width) {
 				case 1: Size = *(uint8_t *)Buffer; break;
 				case 2: Size = *(uint16_t *)Buffer; break;
@@ -309,7 +304,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		}
 		case MCS_STRING: {
-			int Required = Reader->Required;
+			size_t Required = Reader->Required;
 			if (Available < Required) {
 				STRING_PIECE_FN(Reader->UserData, Bytes, Available, 0);
 				Reader->Required = Required - Available;
@@ -346,13 +341,13 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		}
 		case MCS_STRING_CHUNK_SIZE: {
-			int Required = Reader->Required;
+			size_t Required = Reader->Required;
 			while (Available && Required) {
 				Buffer[--Required] = *Bytes++;
 				--Available;
 			}
 			if (!Required) {
-				int Size = 0;
+				size_t Size = 0;
 				switch (Reader->Width) {
 				case 1: Size = *(uint8_t *)Buffer; break;
 				case 2: Size = *(uint16_t *)Buffer; break;
@@ -368,7 +363,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		}
 		case MCS_STRING_CHUNK: {
-			int Required = Reader->Required;
+			size_t Required = Reader->Required;
 			if (Available < Required) {
 				STRING_PIECE_FN(Reader->UserData, Bytes, Available, 0);
 				Reader->Required = Required - Available;
@@ -382,13 +377,13 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		}
 		case MCS_ARRAY_SIZE: {
-			int Required = Reader->Required;
+			size_t Required = Reader->Required;
 			while (Available && Required) {
 				Buffer[--Required] = *Bytes++;
 				--Available;
 			}
 			if (!Required) {
-				int Size = 0;
+				size_t Size = 0;
 				switch (Reader->Width) {
 				case 1: Size = *(uint8_t *)Buffer; break;
 				case 2: Size = *(uint16_t *)Buffer; break;
@@ -405,13 +400,13 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		}
 		case MCS_MAP_SIZE: {
-			int Required = Reader->Required;
+			size_t Required = Reader->Required;
 			while (Available && Required) {
 				Buffer[--Required] = *Bytes++;
 				--Available;
 			}
 			if (!Required) {
-				int Size = 0;
+				size_t Size = 0;
 				switch (Reader->Width) {
 				case 1: Size = *(uint8_t *)Buffer; break;
 				case 2: Size = *(uint16_t *)Buffer; break;
@@ -428,7 +423,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		}
 		case MCS_TAG: {
-			int Required = Reader->Required;
+			size_t Required = Reader->Required;
 			while (Available && Required) {
 				Buffer[--Required] = *Bytes++;
 				--Available;
@@ -457,7 +452,7 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 			break;
 		}
 		case MCS_FLOAT: {
-			int Required = Reader->Required;
+			size_t Required = Reader->Required;
 			while (Available && Required) {
 				Buffer[--Required] = *Bytes++;
 				--Available;
@@ -500,12 +495,4 @@ int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsign
 		}
 	}
 	return 0;
-}
-
-void MINICBOR(reader_finish)(minicbor_reader_t *Reader) {
-	Reader->State = MCS_FINISHED;
-}
-
-int MINICBOR(reader_remaining)(minicbor_reader_t *Reader) {
-	return Reader->Required;
 }

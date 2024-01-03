@@ -7,7 +7,12 @@ all: libminicbor.a
 
 *.o: *.h
 
-CFLAGS += -std=gnu99 -fstrict-aliasing -Wstrict-aliasing -Wall \
+CFLAGS += -std=gnu99 -fstrict-aliasing -foptimize-sibling-calls \
+ 	-Wstrict-aliasing -Wall \
+	-march=native -mtune=native \
+	-mno-sse2 -mno-align-stringops -minline-all-stringops \
+	-momit-leaf-frame-pointer \
+	-fcf-protection=none -fno-stack-protector \
 	-I. -pthread -DGC_THREADS -D_GNU_SOURCE
 LDFLAGS += -lm
 
@@ -15,8 +20,8 @@ ifdef DEBUG
 	CFLAGS += -g -DGC_DEBUG -DDEBUG
 	LDFLAGS += -g
 else
-	CFLAGS += -O3
-	LDFLAGS +=
+	CFLAGS += -O3 -g
+	LDFLAGS += -g
 endif
 
 ifdef READ_FN_PREFIX
@@ -37,6 +42,7 @@ endif
 
 common_objects = \
 	minicbor_reader.o \
+	minicbor_stream.o \
 	minicbor_writer.o
 
 platform_objects =

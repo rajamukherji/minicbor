@@ -1,6 +1,7 @@
 #ifndef MINICBOR_H
 #define MINICBOR_H
 
+#include <stdlib.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -59,6 +60,44 @@ typedef enum {
 	MCS_FINISHED
 } minicbor_state_t;
 
+typedef enum {
+	MCE_WAIT,
+	MCE_POSITIVE,
+	MCE_NEGATIVE,
+	MCE_BYTES,
+	MCE_BYTES_PIECE,
+	MCE_STRING,
+	MCE_STRING_PIECE,
+	MCE_ARRAY,
+	MCE_MAP,
+	MCE_TAG,
+	MCE_SIMPLE,
+	MCE_FLOAT,
+	MCE_BREAK,
+	MCE_ERROR
+} minicbor_event_t;
+
+typedef struct {
+	unsigned char Buffer[8];
+	const unsigned char *Next;
+	union {
+		uint64_t Integer;
+		uint64_t Tag;
+		int Simple;
+		double Real;
+		const unsigned char *Bytes;
+	};
+	size_t Size, Required;
+	unsigned Available;
+	minicbor_state_t State;
+} minicbor_stream_t;
+
+static inline void minicbor_stream_init(minicbor_stream_t *Stream) {
+	Stream->State = MCS_DEFAULT;
+}
+
+minicbor_event_t MINICBOR(next)(minicbor_stream_t *Stream);
+
 #ifdef MINICBOR_READDATA_TYPE
 typedef MINICBOR_READDATA_TYPE MINICBOR(readdata_t);
 #else
@@ -69,12 +108,12 @@ typedef void *MINICBOR(readdata_t);
 
 void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, positive_fn)(MINICBOR(readdata_t) UserData, uint64_t Number);
 void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, negative_fn)(MINICBOR(readdata_t) UserData, uint64_t Number);
-void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, bytes_fn)(MINICBOR(readdata_t) UserData, int Size);
-void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, bytes_piece_fn)(MINICBOR(readdata_t) UserData, const void *Bytes, int Size, int Final);
-void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, string_fn)(MINICBOR(readdata_t) UserData, int Size);
-void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, string_piece_fn)(MINICBOR(readdata_t) UserData, const void *Bytes, int Size, int Final);
-void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, array_fn)(MINICBOR(readdata_t) UserData, int Size);
-void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, map_fn)(MINICBOR(readdata_t) UserData, int Size);
+void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, bytes_fn)(MINICBOR(readdata_t) UserData, size_t Size);
+void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, bytes_piece_fn)(MINICBOR(readdata_t) UserData, const void *Bytes, size_t Size, int Final);
+void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, string_fn)(MINICBOR(readdata_t) UserData, size_t Size);
+void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, string_piece_fn)(MINICBOR(readdata_t) UserData, const void *Bytes, size_t Size, int Final);
+void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, array_fn)(MINICBOR(readdata_t) UserData, size_t Size);
+void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, map_fn)(MINICBOR(readdata_t) UserData, size_t Size);
 void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, tag_fn)(MINICBOR(readdata_t) UserData, uint64_t Tag);
 void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, simple_fn)(MINICBOR(readdata_t) UserData, int Value);
 void MINICBOR_CONCAT(MINICBOR_READ_FN_PREFIX, float_fn)(MINICBOR(readdata_t) UserData, double Number);
@@ -96,43 +135,43 @@ typedef struct {
 
 	/**
 	 * Called when a bytestring is encountered.
-	 * :code:`Size` is nonnegative for definite bytestrings and :code:`-1` for indefinite strings.
+	 * :code:`Size` is nonnegative for definite bytestrings and :code:`SIZE_MAX` for indefinite strings.
 	 * For definite empty bytestrings, :code:`Size` is :code:`0` and :code:`BytesPieceFn()` is not called.
 	 * Otherwise, :code:`BytesPieceFn()` will be called one or more times, with the last call having :code:`Final` set to :code:`1`.
 	 */
-	void (*BytesFn)(MINICBOR(readdata_t) UserData, int Size);
+	void (*BytesFn)(MINICBOR(readdata_t) UserData, size_t Size);
 
 	/**
 	 * Called for each piece of a bytestring.
 	 * Note that pieces here do not correspond to CBOR chunks: there may be more pieces than chunks due to streaming.
 	 */
-	void (*BytesPieceFn)(MINICBOR(readdata_t) UserData, const void *Bytes, int Size, int Final);
+	void (*BytesPieceFn)(MINICBOR(readdata_t) UserData, const void *Bytes, size_t Size, int Final);
 
 	/**
 	 * Called when a string is encountered.
-	 * :code:`Size` is nonnegative for definite strings and :code:`-1` for indefinite strings.
+	 * :code:`Size` is nonnegative for definite strings and :code:`SIZE_MAX` for indefinite strings.
 	 * For definite empty strings, :code:`Size` is :code:`0` and :code:`StringPieceFn()` is not called.
 	 * Otherwise, :code:`StringPieceFn()` will be called one or more times, with the last call having :code:`Final` set to :code:`1`.
 	 */
-	void (*StringFn)(MINICBOR(readdata_t) UserData, int Size);
+	void (*StringFn)(MINICBOR(readdata_t) UserData, size_t Size);
 
 	/**
 	 * Called for each piece of a string.
 	 * Note that pieces here do not correspond to CBOR chunks: there may be more pieces than chunks due to streaming.
 	 */
-	void (*StringPieceFn)(MINICBOR(readdata_t) UserData, const void *Bytes, int Size, int Final);
+	void (*StringPieceFn)(MINICBOR(readdata_t) UserData, const void *Bytes, size_t Size, int Final);
 
 	/**
 	 * Called when an array is encountered.
-	 * :code:`Size` is nonnegative for definite array and :code:`-1` for indefinite arrays.
+	 * :code:`Size` is nonnegative for definite array and :code:`SIZE_MAX` for indefinite arrays.
 	 */
-	void (*ArrayFn)(MINICBOR(readdata_t) UserData, int Size);
+	void (*ArrayFn)(MINICBOR(readdata_t) UserData, size_t Size);
 
 	/**
 	 * Called when an map is encountered.
-	 * :code:`Size` is nonnegative for definite map and :code:`-1` for indefinite maps.
+	 * :code:`Size` is nonnegative for definite map and :code:`SIZE_MAX` for indefinite maps.
 	 */
-	void (*MapFn)(MINICBOR(readdata_t) UserData, int Size);
+	void (*MapFn)(MINICBOR(readdata_t) UserData, size_t Size);
 
 	/**
 	 * Called when a tag is encountered.
@@ -165,21 +204,12 @@ typedef struct {
 
 #endif
 
-typedef union {
-	unsigned char Bytes[8];
-	uint16_t Int16;
-	uint32_t Int32;
-	uint64_t Int64;
-	float Float;
-	double Double;
-} minicbor_buffer_t;
-
 /**
  * A reader for a CBOR stream.
  * Must be initialized with :c:func:`minicbor_reader_init()` before use (and reuse).
  */
 typedef struct minicbor_reader_t {
-	minicbor_buffer_t Buffer[1];
+	unsigned char Buffer[8];
 
 #ifndef MINICBOR_READ_FN_PREFIX
 	MINICBOR(reader_fns) *Callbacks;
@@ -190,7 +220,8 @@ typedef struct minicbor_reader_t {
 	 */
 	MINICBOR(readdata_t) UserData;
 
-	int Position, Width, Required;
+	size_t Position, Required;
+	int Width;
 	minicbor_state_t State;
 } minicbor_reader_t;
 
@@ -199,24 +230,31 @@ typedef struct minicbor_reader_t {
  * Must be called before any call to :c:func:`minicbor_read()`.
  * A :c:type:`minicbor_reader_t` can be reused by calling this function again.
  */
-void MINICBOR(reader_init)(minicbor_reader_t *Reader);
+static inline void MINICBOR(reader_init)(minicbor_reader_t *Reader) {
+	Reader->Position = 0;
+	Reader->State = MCS_DEFAULT;
+}
 
 /**
  * Parse some CBOR bytes and call the appropriate callbacks.
  * Returns the 1 if :c:func:`minicbor_reader_finish()` was called within a callback, otherwise returns 0.
  */
-int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, unsigned Size);
+int MINICBOR(read)(minicbor_reader_t *Reader, const unsigned char *Bytes, size_t Size);
 
 /**
  * Set :code:`Reader` state to :code:`MCS_FINISHED`.
  * Must be called from within a reader callback.
  */
-void MINICBOR(reader_finish)(minicbor_reader_t *Reader);
+static inline void MINICBOR(reader_finish)(minicbor_reader_t *Reader) {
+	Reader->State = MCS_FINISHED;
+}
 
 /**
  * Returns the number of bytes remainining to be parsed by the reader.
  */
-int MINICBOR(reader_remaining)(minicbor_reader_t *Reader);
+static inline int MINICBOR(reader_remaining)(minicbor_reader_t *Reader) {
+	return Reader->Required;
+}
 
 #ifdef MINICBOR_WRITEDATA_TYPE
 typedef MINICBOR_WRITEDATA_TYPE MINICBOR(writedata_t);
@@ -236,110 +274,108 @@ typedef void *MINICBOR(writedata_t);
  * :param Bytes: Bytes to write.
  * :param Size: Number of bytes.
  */
-typedef void (*minicbor_write_fn)(MINICBOR(writedata_t) UserData, const unsigned char *Bytes, unsigned Size);
+typedef int (*minicbor_write_fn)(MINICBOR(writedata_t) UserData, const void *Bytes, size_t Size);
 
 #endif
 
 /**
  * Write a signed integer. Will automatically write a positive or negative integer with the smallest possible width.
  */
-void MINICBOR(write_integer)(MINICBOR_WRITE_PARAMS, int64_t Number);
+int MINICBOR(write_integer)(MINICBOR_WRITE_PARAMS, int64_t Number);
 
 /**
  * Write a positive integer with the smallest width.
  */
-void MINICBOR(write_positive)(MINICBOR_WRITE_PARAMS, uint64_t Number);
+int MINICBOR(write_positive)(MINICBOR_WRITE_PARAMS, uint64_t Number);
 
 /**
  * Write a negative integer with the smallest width. Here `Number` is the exact value to write into the stream.
  * This means if :code:`X` is the desired negative value to write, then :code:`Number` should be :code:`1 - X` or :code:`~X` (the one's complement).
  * This is to allow the full range of negative numbers to be written.
  */
-void MINICBOR(write_negative)(MINICBOR_WRITE_PARAMS, uint64_t Number);
+int MINICBOR(write_negative)(MINICBOR_WRITE_PARAMS, uint64_t Number);
 
 /**
  * Write the leading bytes of a definite bytestring with :code:`Size` bytes.
  * The actual bytes should be written directly by the application.
  */
-void MINICBOR(write_bytes)(MINICBOR_WRITE_PARAMS, unsigned Size);
+int MINICBOR(write_bytes)(MINICBOR_WRITE_PARAMS, size_t Size);
 
 /**
  * Write the leading bytes of an indefinite bytestring.
  * The chunks should be written using :c:func:`minicbor_write_bytes()` followed by the bytes themselves.
  * Finally, :c:func:`minicbor_write_break()` should be used to end the indefinite bytestring.
  */
-void MINICBOR(write_indef_bytes)(MINICBOR_WRITE_PARAMS);
+int MINICBOR(write_indef_bytes)(MINICBOR_WRITE_PARAMS);
 
 /**
  * Write the leading bytes of a definite string with :code:`Size` bytes.
  * The actual string should be written directly by the application.
  */
-void MINICBOR(write_string)(MINICBOR_WRITE_PARAMS, unsigned Size);
+int MINICBOR(write_string)(MINICBOR_WRITE_PARAMS, size_t Size);
 
 /**
  * Write the leading bytes of an indefinite string.
  * The chunks should be written using :c:func:`minicbor_write_string()` followed by the strings themselves.
  * Finally, :c:func:`minicbor_write_break()` should be used to end the indefinite string.
  */
-void MINICBOR(write_indef_string)(MINICBOR_WRITE_PARAMS);
+int MINICBOR(write_indef_string)(MINICBOR_WRITE_PARAMS);
 
 /**
  * Write the leading bytes of a definite array with :code:`Size` elements.
  * The elements themselves should be written with the appropriate :code:`minicbor_write_*()` functions.
  */
-void MINICBOR(write_array)(MINICBOR_WRITE_PARAMS, unsigned Size);
+int MINICBOR(write_array)(MINICBOR_WRITE_PARAMS, size_t Size);
 
 /**
  * Write the leading bytes of an indefinite array.
  * The elements themselves should be written with the appropriate :code:`minicbor_write_*()` functions.
  * Finally, :c:func:`minicbor_write_break()` should be used to ende the indefinite array.
  */
-void MINICBOR(write_indef_array)(MINICBOR_WRITE_PARAMS);
+int MINICBOR(write_indef_array)(MINICBOR_WRITE_PARAMS);
 
 /**
  * Write the leading bytes of a definite map with :code:`Size` key-value pairs.
  * The keys and values themselves should be written with the appropriate :code:`minicbor_write_*()` functions.
  */
-void MINICBOR(write_map)(MINICBOR_WRITE_PARAMS, unsigned Size);
+int MINICBOR(write_map)(MINICBOR_WRITE_PARAMS, size_t Size);
 
 /**
  * Write the leading bytes of an indefinite map.
  * The keys and values themselves should be written with the appropriate :code:`minicbor_write_*()` functions.
  * Finally, :c:func:`minicbor_write_break()` should be used to ende the indefinite map.
  */
-void MINICBOR(write_indef_map)(MINICBOR_WRITE_PARAMS);
+int MINICBOR(write_indef_map)(MINICBOR_WRITE_PARAMS);
 
 /**
  * Write a floating point number in half precision.
  */
-void MINICBOR(write_float2)(MINICBOR_WRITE_PARAMS, double Number);
+int MINICBOR(write_float2)(MINICBOR_WRITE_PARAMS, double Number);
 
 /**
  * Write a floating point number in single precision.
  */
-void MINICBOR(write_float4)(MINICBOR_WRITE_PARAMS, double Number);
+int MINICBOR(write_float4)(MINICBOR_WRITE_PARAMS, double Number);
 
 /**
  * Write a floating point number in double precision.
  */
-void MINICBOR(write_float8)(MINICBOR_WRITE_PARAMS, double Number);
+int MINICBOR(write_float8)(MINICBOR_WRITE_PARAMS, double Number);
 
 /**
  * Write a simple value.
  */
-void MINICBOR(write_simple)(MINICBOR_WRITE_PARAMS, unsigned char Simple);
-
+int MINICBOR(write_simple)(MINICBOR_WRITE_PARAMS, unsigned char Simple);
 
 /**
  * Write a break (to end an indefinite bytestring, string, array or map).
  */
-void MINICBOR(write_break)(MINICBOR_WRITE_PARAMS);
-
+int MINICBOR(write_break)(MINICBOR_WRITE_PARAMS);
 
 /**
  * Write a tag sequence which will apply to the next value written.
  */
-void MINICBOR(write_tag)(MINICBOR_WRITE_PARAMS, uint64_t Tag);
+int MINICBOR(write_tag)(MINICBOR_WRITE_PARAMS, uint64_t Tag);
 
 #ifdef __cplusplus
 }

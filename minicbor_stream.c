@@ -43,7 +43,7 @@ minicbor_event_t MINICBOR(next)(minicbor_stream_t *Stream) {
 				break;
 			case 0x5F:
 				Stream->State = MCS_BYTES_INDEF;
-				Stream->Required = SIZE_MAX;
+				Stream->Size = Stream->Required = SIZE_MAX;
 				EVENT(BYTES);
 			case 0x60 ... 0x77:
 				Stream->Required = Byte - 0x60;
@@ -55,27 +55,27 @@ minicbor_event_t MINICBOR(next)(minicbor_stream_t *Stream) {
 				break;
 			case 0x7F:
 				Stream->State = MCS_STRING_INDEF;
-				Stream->Required = SIZE_MAX;
+				Stream->Size = Stream->Required = SIZE_MAX;
 				EVENT(STRING);
 			case 0x80 ... 0x97:
-				Stream->Required = Byte = 0x80;
+				Stream->Size = Stream->Required = Byte - 0x80;
 				EVENT(ARRAY);
 			case 0x98 ... 0x9B:
 				Stream->Size = Stream->Required = 1 << (Byte - 0x98);
 				Stream->State = MCS_ARRAY_SIZE;
 				break;
 			case 0x9F:
-				Stream->Required = SIZE_MAX;
+				Stream->Size = Stream->Required = SIZE_MAX;
 				EVENT(ARRAY);
 			case 0xA0 ... 0xB7:
-				Stream->Required = Byte - 0xA0;
+				Stream->Size = Stream->Required = Byte - 0xA0;
 				EVENT(MAP);
 			case 0xB8 ... 0xBB:
 				Stream->Size = Stream->Required = 1 << (Byte - 0xB8);
 				Stream->State = MCS_MAP_SIZE;
 				break;
 			case 0xBF:
-				Stream->Required = SIZE_MAX;
+				Stream->Size = Stream->Required = SIZE_MAX;
 				EVENT(MAP);
 			case 0xC0 ... 0xD7:
 				Stream->Tag = Byte - 0xC0;
@@ -243,7 +243,7 @@ minicbor_event_t MINICBOR(next)(minicbor_stream_t *Stream) {
 				Available = 0;
 			} else {
 				Stream->Size = Required;
-				Stream->Required = 0;
+				Stream->Required = SIZE_MAX;
 				Next += Required;
 				Available -= Required;
 				Stream->State = MCS_BYTES_INDEF;
@@ -348,10 +348,10 @@ minicbor_event_t MINICBOR(next)(minicbor_stream_t *Stream) {
 				Available = 0;
 			} else {
 				Stream->Size = Required;
-				Stream->Required = 0;
+				Stream->Required = SIZE_MAX;
 				Next += Required;
 				Available -= Required;
-				Stream->State = MCS_BYTES_INDEF;
+				Stream->State = MCS_STRING_INDEF;
 			}
 			EVENT(STRING_PIECE);
 		}
@@ -370,7 +370,7 @@ minicbor_event_t MINICBOR(next)(minicbor_stream_t *Stream) {
 				case 8: Size = *(uint64_t *)Buffer; break;
 				default: __builtin_unreachable();
 				}
-				Stream->Required = Size;
+				Stream->Size = Stream->Required = Size;
 				Stream->State = MCS_DEFAULT;
 				EVENT(ARRAY);
 			} else {
@@ -393,7 +393,7 @@ minicbor_event_t MINICBOR(next)(minicbor_stream_t *Stream) {
 				case 8: Size = *(uint64_t *)Buffer; break;
 				default: __builtin_unreachable();
 				}
-				Stream->Required = Size;
+				Stream->Size = Stream->Required = Size;
 				Stream->State = MCS_DEFAULT;
 				EVENT(MAP);
 			} else {
